@@ -30,6 +30,7 @@
     "@types/mocha": "^2.2.41",
     "@types/node": "^6.0.78",
     "chai": "^4.0.2",
+    "ghoma": "^1.0.6",
     "mocha": "^3.4.2",
     "nyc": "^11.0.2",
     "typescript": "^2.4.2"
