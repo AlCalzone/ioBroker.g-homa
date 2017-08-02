@@ -1,0 +1,45 @@
+{
+  "name": "iobroker.g-homa",
+  "version": "0.0.1",
+  "description": "ioBroker g-homa Adapter for TypeScript",
+  "author": {
+    "name": "AlCalzone",
+    "email": "d.griesel@gmx.net"
+  },
+  "contributors": [
+    {
+      "name": "AlCalzone",
+      "email": "d.griesel@gmx.net"
+    }
+  ],
+  "homepage": "https://github.com/AlCalzone/ioBroker.g-homa",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "g-homa",
+    "Smart Home",
+    "home automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlCalzone/ioBroker.g-homa"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.0.0",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^6.0.78",
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.2",
+    "typescript": "^2.4.2"
+  },
+  "main": "build/main.js",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha"
+  },
+  "bugs": {
+    "url": "https://github.com/AlCalzone/ioBroker.g-homa/issues"
+  },
+  "readmeFilename": "README.md"
+}

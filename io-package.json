@@ -1,0 +1,40 @@
+{
+    "common": {
+        "name": "g-homa",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial adapter",
+                "de": "Initiale Version",
+                "ru": "Первоначальный адаптер",
+                "pt": "Versão inicial",
+                "fr": "Version initiale",
+                "nl": "Eerste release"
+            }
+        },
+        "title": "Javascript/Node.js based g-homa adapter for TypeScript",
+        "desc": {
+            "en": "ioBroker g-homa Adapter",
+            "de": "ioBroker G-homa Adapter",
+            "ru": "ioBroker G-homa драйвер как образец",
+            "pt": "Modelo de adaptador para o ioBroker",
+            "fr": "ioBroker adaptateur modèle",
+            "nl": "ioBroker G-homa Adapter"
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "g-homa.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/AlCalzone/ioBroker.g-homa-ts/master/admin/g-homa.png",
+        "keywords": ["g-homa"],
+        "readme": "https://github.com/AlCalzone/ioBroker.g-homa-ts/blob/master/README.md",
+        "loglevel": "info",
+        "type": "hardware"
+    },
+    "native": {
+
+    },
+    "objects": [
+
+    ]
+}
