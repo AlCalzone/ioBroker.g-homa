@@ -1,7 +1,7 @@
 {
     "name": "iobroker.g-homa",
     "version": "0.0.1",
-    "description": "ioBroker g-homa Adapter for TypeScript",
+    "description": "ioBroker adapter to control G-Homa WiFi plugs",
     "author": {
         "name": "AlCalzone",
         "email": "d.griesel@gmx.net"

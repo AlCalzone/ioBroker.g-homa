@@ -12,21 +12,17 @@
                 "nl": "Eerste release"
             }
         },
-        "title": "Javascript/Node.js based g-homa adapter for TypeScript",
+        "title": "Adapter for G-Homa WiFi plugs",
         "desc": {
-            "en": "ioBroker g-homa Adapter",
-            "de": "ioBroker G-homa Adapter",
-            "ru": "ioBroker G-homa драйвер как образец",
-            "pt": "Modelo de adaptador para o ioBroker",
-            "fr": "ioBroker adaptateur modèle",
-            "nl": "ioBroker G-homa Adapter"
+            "en": "Adapter to control G-Homa WiFi plugs",
+            "de": "Adapter, um G-Homa WLAN-Steckdosen zu kontrollieren",
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "icon": "g-homa.png",
         "enabled": true,
         "extIcon": "https://raw.githubusercontent.com/AlCalzone/ioBroker.g-homa-ts/master/admin/g-homa.png",
-        "keywords": ["g-homa"],
+        "keywords": [ "g-homa" ],
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa-ts/blob/master/README.md",
         "loglevel": "info",
         "type": "hardware"
