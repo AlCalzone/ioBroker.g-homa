@@ -2,12 +2,13 @@
 # ioBroker.g-homa-ts
 =================
 
-ioBroker adapter for G-Homa Wifi plugs
+ioBroker adapter for G-Homa Wifi plugs. Provides a local command server so the plugs don't phone home anymore.
+The inclusion of plugs has to be performed with the app for now, but will soon be supported over ioBroker on WiFi-enabled devices.
 
 ## Changelog
 
 #### 0.0.1
-* (AlCalzone) initial release (not working yet)
+* (AlCalzone) initial release
 
 ## License
 The MIT License (MIT)

@@ -21,6 +21,10 @@ let adapter: ExtendedAdapter = utils.adapter({
 		adapter = _.extend(adapter);
 		_.adapter = adapter;
 
+		// redirect console output
+		console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
+		console.error = (msg) => adapter.log.error("STDERR > " + msg);
+
 		// bekannte Plugs einlesen
 		await readPlugs();
 
@@ -28,21 +32,22 @@ let adapter: ExtendedAdapter = utils.adapter({
 		adapter.setState("info.connection", false, true);
 		adapter.log.info("starting server...");
 		server = new gHoma.Server();
-		server.once("server started", (address: gHoma.ServerAddress) => {
+		server.once("server started", async (address: gHoma.ServerAddress) => {
 			adapter.log.info(`server started on port ${address.port}`);
 			adapter.setState("info.connection", true, true);
 
 			// Manager starten, um
-			manager = new gHoma.Manager();
-			manager.once("ready", async () => {
+			manager = (new gHoma.Manager())
+				.once("ready", async () => {
+					adapter.log.info("searching plugs");
+					// die Steckdosen zu suchen
+					const plugs = await manager.findAllPlugs();
+					// und zu konfigurieren
+					const promises = plugs.map(addr => manager.configurePlug(addr.ip, ownIP, address.port));
+					await Promise.all(promises);
 
-				// die Steckdosen zu suchen
-				const plugs = await manager.findAllPlugs();
-				// und zu konfigurieren
-				const promises = plugs.map(addr => manager.configurePlug(addr.ip, ownIP, address.port));
-				await Promise.all(promises);
-
-			});
+				})
+				;
 
 		});
 		// auf Events des Servers lauschen
@@ -90,7 +95,7 @@ let adapter: ExtendedAdapter = utils.adapter({
     },
 
     // is called if a subscribed state changes
-    stateChange: (id, state) => {
+    stateChange: async (id, state) => {
 		if (state && !state.ack) {
 			if (id.endsWith(".state")) {
 				// Switch soll geschaltet werden
@@ -98,15 +103,17 @@ let adapter: ExtendedAdapter = utils.adapter({
 				const matches = /([0-9A-Fa-f]{6})\.state$/.exec(id);
 				if (matches && matches.length) {
 					const switchId = matches[1];
-					server.switchPlug(switchId, state.val);
+					const obj = await adapter.$getObject(switchId.toUpperCase());
+					if (obj && obj.native.id)
+						server.switchPlug(obj.native.id, state.val);
 				}
 			}
 		}
     },
 
-    message: (obj) => {
+    //message: (obj) => {
         
-    },
+    //},
 
 	// is called when adapter shuts down - callback has to be called under any circumstances!
 	unload: (callback) => {
@@ -164,16 +171,17 @@ async function readPlugs() : Promise<void> {
 }
 
 async function extendPlug(plug: gHoma.Plug) {
-	const prefix = plug.id;
+	const prefix = plug.id.toUpperCase();
 	let promises: Promise<any>[] = [
 		// Gerät selbst
 		adapter.$setObjectNotExists(
-			`${plug.id}`, {
+			`${prefix}`, {
 				type: "device",
 				common: {
-					name: "G-Homa WiFi plug " + plug.id,
+					name: "G-Homa WiFi plug " + plug.id.toUpperCase(),
 				},
 				native: {
+					id: plug.id,
 					shortmac: plug.shortmac,
 					mac: plug.mac
 				}
@@ -181,7 +189,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		),
 		// Info-Channel
 		adapter.$setObjectNotExists(
-			`${plug.id}.info`, {
+			`${prefix}.info`, {
 				type: "channel",
 				common: {
 					name: "Information über das Gerät",
@@ -191,7 +199,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		),
 		// Kommunikation
 		adapter.$setObjectNotExists(
-			`${plug.id}.info.alive`, {
+			`${prefix}.info.alive`, {
 				"type": "state",
 				"common": {
 					"name": "Ob das Gerät erreichbar ist",
@@ -204,7 +212,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			}
 		),
 		adapter.$setObjectNotExists(
-			`${plug.id}.info.lastSeen`, {
+			`${prefix}.info.lastSeen`, {
 				"type": "state",
 				"common": {
 					"name": "Wann zuletzt eine Rückmeldung vom Gerät kam",
@@ -217,7 +225,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			}
 		),
 		adapter.$setObjectNotExists(
-			`${plug.id}.info.ip`, {
+			`${prefix}.info.ip`, {
 				"type": "state",
 				"common": {
 					"name": "Letzte bekannte IP-Adresse",
@@ -230,7 +238,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			}
 		),
 		adapter.$setObjectNotExists(
-			`${plug.id}.info.port`, {
+			`${prefix}.info.port`, {
 				"type": "state",
 				"common": {
 					"name": "Letzter bekannter Port",
@@ -244,7 +252,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		),
 		// Schalten des Geräts
 		adapter.$setObjectNotExists(
-			`${plug.id}.lastSwitchSource`, {
+			`${prefix}.lastSwitchSource`, {
 				"type": "state",
 				"common": {
 					"name": "Von wo das Gerät zuletzt geschaltet wurde (remote oder lokal)",
@@ -257,7 +265,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			}
 		),
 		adapter.$setObjectNotExists(
-			`${plug.id}.state`, {
+			`${prefix}.state`, {
 				"type": "state",
 				"common": {
 					"name": "Schaltzustand des Geräts",
@@ -275,13 +283,18 @@ async function extendPlug(plug: gHoma.Plug) {
 
 	// Jetzt die Werte speichern
 	promises = [
-		adapter.$setState(`${plug.id}.info.alive`, plug.online, true),
-		adapter.$setState(`${plug.id}.info.lastSeen`, plug.lastSeen, true),
-		adapter.$setState(`${plug.id}.info.ip`, plug.ip, true),
-		adapter.$setState(`${plug.id}.info.port`, plug.port, true),
-		adapter.$setState(`${plug.id}.lastSwitchSource`, plug.lastSwitchSource, true),
-		adapter.$setState(`${plug.id}.state`, plug.state, true),
+		adapter.$setState(`${prefix}.info.alive`, plug.online, true),
+		adapter.$setState(`${prefix}.info.lastSeen`, plug.lastSeen, true),
+		adapter.$setState(`${prefix}.info.ip`, plug.ip, true),
+		adapter.$setState(`${prefix}.info.port`, plug.port, true),
+		adapter.$setState(`${prefix}.lastSwitchSource`, plug.lastSwitchSource, true),
+		adapter.$setState(`${prefix}.state`, plug.state, true),
 	];
 	await Promise.all(promises);
 
 }
+
+// Unbehandelte Fehler tracen
+process.on('unhandledRejection', r => {
+	adapter.log.error("unhandled promise rejection: " + r);
+});
