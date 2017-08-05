@@ -1,5 +1,5 @@
 ![Logo](admin/g-homa.png)
-# ioBroker.g-homa-ts
+# ioBroker.g-homa
 =================
 
 ioBroker adapter for G-Homa Wifi plugs. Provides a local command server so the plugs don't phone home anymore.
