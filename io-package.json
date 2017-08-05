@@ -21,9 +21,9 @@
         "mode": "daemon",
         "icon": "g-homa.png",
         "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/AlCalzone/ioBroker.g-homa-ts/master/admin/g-homa.png",
+        "extIcon": "https://raw.githubusercontent.com/AlCalzone/ioBroker.g-homa/master/admin/g-homa.png",
         "keywords": [ "g-homa" ],
-        "readme": "https://github.com/AlCalzone/ioBroker.g-homa-ts/blob/master/README.md",
+        "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
         "type": "hardware"
     },
