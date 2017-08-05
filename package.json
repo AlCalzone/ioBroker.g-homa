@@ -24,7 +24,9 @@
     "type": "git",
     "url": "https://github.com/AlCalzone/ioBroker.g-homa"
   },
-  "dependencies": {},
+  "dependencies": {
+    "g-homa": "git+https://github.com/AlCalzone/node-g-homa.git"
+  },
   "devDependencies": {
     "@types/chai": "^4.0.0",
     "@types/mocha": "^2.2.41",
