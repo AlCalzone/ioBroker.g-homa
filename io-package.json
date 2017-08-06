@@ -15,7 +15,7 @@
         "title": "Adapter for G-Homa WiFi plugs",
         "desc": {
             "en": "Adapter to control G-Homa WiFi plugs",
-            "de": "Adapter, um G-Homa WLAN-Steckdosen zu kontrollieren",
+            "de": "Adapter, um G-Homa WLAN-Steckdosen zu kontrollieren"
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
