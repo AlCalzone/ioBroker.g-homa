@@ -25,7 +25,7 @@
         "url": "https://github.com/AlCalzone/ioBroker.g-homa"
     },
     "dependencies": {
-        "g-homa": "0.0.2"
+        "g-homa": "https://github.com/AlCalzone/node-g-homa"
     },
     "devDependencies": {
         "@types/chai": "^4.0.0",
