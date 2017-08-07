@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+#### 0.0.2
+* (AlCalzone) Improved support for older NodeJS versions
+
 #### 0.0.1
 * (AlCalzone) initial release
 
