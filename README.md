@@ -2,7 +2,10 @@
 # ioBroker.g-homa
 =================
 
-***This adapter needs at least nodejs 6.x***
+**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/AlCalzone/iobroker.g-homa.svg?branch=master)](https://travis-ci.org/AlCalzone/iobroker.g-homa) 
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/AlCalzone/ioBroker.g-homa?branch=master&svg=true)](https://ci.appveyor.com/project/AlCalzone/ioBroker-g-homa/)
+
+================
 
 ioBroker adapter for G-Homa Wifi plugs. Provides a local command server so the plugs don't phone home anymore.
 The inclusion of plugs has to be performed with the app for now, but will soon be supported over ioBroker on WiFi-enabled devices.
