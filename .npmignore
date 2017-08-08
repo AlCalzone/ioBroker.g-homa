@@ -8,3 +8,5 @@ test
 .travis.yml
 appveyor.yml
 /.vs
+/bin
+/obj

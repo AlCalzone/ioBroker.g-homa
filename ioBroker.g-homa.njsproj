@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8e5ae7fd-0d7f-4b7b-bad3-6bf0c21a4f26}</ProjectGuid>
     <ProjectHome />
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
     <StartupFile>build\main.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,15 +19,19 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include=".npmignore" />
+    <Content Include=".travis.yml" />
+    <Content Include="appveyor.yml" />
     <Content Include="io-package.json" />
+    <Content Include="LICENSE" />
     <Content Include="package.json" />
     <Content Include="tsconfig.json" />
     <Content Include="README.md" />
     <Content Include="admin\index.html" />
     <Content Include="admin\g-homa.png" />
     <Compile Include="admin\words.js" />
-    <TypeScriptCompile Include="build\main.d.ts" />
-    <Compile Include="build\main.js" />
+    <Content Include="tslint.json" />
     <TypeScriptCompile Include="src\lib\global.ts" />
     <TypeScriptCompile Include="src\lib\network.ts" />
     <TypeScriptCompile Include="src\lib\object-polyfill.ts" />
@@ -36,16 +40,12 @@
     <Compile Include="main.js" />
     <Compile Include="test\testAdapter.js" />
     <Compile Include="test\testPackageFiles.js" />
-    <TypeScriptCompile Include="build\lib\utils.d.ts" />
-    <Compile Include="build\lib\utils.js" />
     <TypeScriptCompile Include="src\lib\ioBroker.d.ts" />
     <TypeScriptCompile Include="src\lib\utils.ts" />
     <Compile Include="test\lib\setup.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="admin" />
-    <Folder Include="build" />
-    <Folder Include="build\lib" />
     <Folder Include="src" />
     <Folder Include="src\lib" />
     <Folder Include="test" />
