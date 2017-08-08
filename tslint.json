@@ -4,9 +4,7 @@
         "tslint:recommended"
     ],
     "rules": {
-        "indent": [
-            "tabs", 4
-        ],
+        "indent": [true, "tabs", 4],
         "object-literal-sort-keys": false,
         "object-literal-shorthand": false,
         "array-type": ["array"],
@@ -21,6 +19,11 @@
         "curly": [true, "ignore-same-line"],
         "triple-equals": [true, "allow-undefined-check", "allow-null-check"],
         "arrow-parens": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "quotemark": [true, "double", "avoid-escape"], // change "double" to "single" if you prefer ' over "
+        // development:
+        "no-console": [false]
+        // production:
+        // "no-console": [true, "log", "error"]
     }
 }
