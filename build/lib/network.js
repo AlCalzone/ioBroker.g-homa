@@ -13,12 +13,10 @@ function getBroadcastAddresses() {
         .filter(function (add) { return !add.internal && add.family === "IPv4"; })
         .map(function (k) { return ({
         address: k.address.split(".").map(function (num) { return +num; }),
-        netmask: k.netmask.split(".").map(function (num) { return +num; })
+        netmask: k.netmask.split(".").map(function (num) { return +num; }),
     }); })
-        .map(function (add) {
-        return add.address.map(function (val, i) { return (val | ~add.netmask[i]) & 0xff; });
-    })
-        .filter(function (add) { return add[0] != 169; })
+        .map(function (add) { return add.address.map(function (val, i) { return (val | ~add.netmask[i]) & 0xff; }); })
+        .filter(function (add) { return add[0] !== 169; })
         .map(function (a) { return a[0] + "." + a[1] + "." + a[2] + "." + a[3]; });
     return broadcastAddresses;
 }
@@ -34,7 +32,7 @@ function getOwnIpAddresses() {
         .reduce(function (prev, cur) { return prev.concat.apply(prev, cur); }, [])
         .filter(function (add) { return !add.internal && add.family === "IPv4"; })
         .map(function (k) { return k.address.split(".").map(function (num) { return +num; }); })
-        .filter(function (add) { return add[0] != 169; })
+        .filter(function (add) { return add[0] !== 169; })
         .map(function (a) { return a[0] + "." + a[1] + "." + a[2] + "." + a[3]; });
     return addresses;
 }

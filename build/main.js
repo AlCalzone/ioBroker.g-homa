@@ -36,18 +36,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+var gHoma = require("g-homa");
 var global_1 = require("./lib/global");
 var network_1 = require("./lib/network");
 var object_polyfill_1 = require("./lib/object-polyfill");
 var utils_1 = require("./lib/utils");
-var gHoma = require("g-homa");
 var server;
 var manager;
+// tslint:disable-next-line:prefer-const
 var discovery;
 var ownIP = network_1.getOwnIpAddresses()[0];
 var plugs = {};
 var adapter = utils_1.default.adapter({
-    name: 'g-homa',
+    name: "g-homa",
     ready: function () { return __awaiter(_this, void 0, void 0, function () {
         var _this = this;
         return __generator(this, function (_a) {
@@ -76,15 +77,15 @@ var adapter = utils_1.default.adapter({
                             // Manager starten, um
                             manager = (new gHoma.Manager())
                                 .once("ready", function () { return __awaiter(_this, void 0, void 0, function () {
-                                var plugs, promises;
+                                var activePlugs, promises;
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0:
                                             adapter.log.info("searching plugs");
                                             return [4 /*yield*/, manager.findAllPlugs()];
                                         case 1:
-                                            plugs = _a.sent();
-                                            promises = plugs.map(function (addr) { return manager.configurePlug(addr.ip, ownIP, address.port); });
+                                            activePlugs = _a.sent();
+                                            promises = activePlugs.map(function (addr) { return manager.configurePlug(addr.ip, ownIP, address.port); });
                                             return [4 /*yield*/, Promise.all(promises)];
                                         case 2:
                                             _a.sent();
@@ -115,7 +116,7 @@ var adapter = utils_1.default.adapter({
                             switch (_a.label) {
                                 case 0:
                                     if (plugs[id])
-                                        plugs[id].online = false;
+                                        plugs[id].online = true;
                                     iobID = id + ".alive";
                                     return [4 /*yield*/, adapter.$getState(iobID)];
                                 case 1:
@@ -158,6 +159,7 @@ var adapter = utils_1.default.adapter({
     }); },
     // is called if a subscribed object changes
     objectChange: function (id, obj) {
+        // TODO: do we need this?
     },
     // is called if a subscribed state changes
     stateChange: function (id, state) { return __awaiter(_this, void 0, void 0, function () {
@@ -173,15 +175,16 @@ var adapter = utils_1.default.adapter({
                     return [4 /*yield*/, adapter.$getObject(switchId.toUpperCase())];
                 case 1:
                     obj = _a.sent();
-                    if (obj && obj.native.id)
+                    if (obj && obj.native.id) {
                         server.switchPlug(obj.native.id, state.val);
+                    }
                     _a.label = 2;
                 case 2: return [2 /*return*/];
             }
         });
     }); },
-    //message: (obj) => {
-    //},
+    // message: (obj) => {
+    // },
     // is called when adapter shuts down - callback has to be called under any circumstances!
     unload: function (callback) {
         try {
@@ -219,7 +222,7 @@ function readPlugs() {
                         shortmac: iobPlug.native.shortmac,
                         mac: iobPlug.native.mac,
                         online: false,
-                        state: false
+                        state: false,
                     };
                     plugs[id] = plug;
                     return [4 /*yield*/, adapter.$getState(id + ".lastSeen")];
@@ -263,7 +266,7 @@ function extendPlug(plug) {
                 case 0:
                     prefix = plug.id.toUpperCase();
                     promises = [
-                        // Ger�t selbst
+                        // Gerät selbst
                         adapter.$setObjectNotExists("" + prefix, {
                             type: "device",
                             common: {
@@ -272,84 +275,84 @@ function extendPlug(plug) {
                             native: {
                                 id: plug.id,
                                 shortmac: plug.shortmac,
-                                mac: plug.mac
-                            }
+                                mac: plug.mac,
+                            },
                         }),
                         // Info-Channel
                         adapter.$setObjectNotExists(prefix + ".info", {
                             type: "channel",
                             common: {
-                                name: "Information �ber das Ger�t",
+                                name: "Information über das Gerät",
                             },
-                            native: {}
+                            native: {},
                         }),
                         // Kommunikation
                         adapter.$setObjectNotExists(prefix + ".info.alive", {
-                            "type": "state",
-                            "common": {
-                                "name": "Ob das Ger�t erreichbar ist",
-                                "type": "boolean",
-                                "role": "indicator.reachable",
-                                "read": true,
-                                "write": false
+                            type: "state",
+                            common: {
+                                name: "Ob das Gerät erreichbar ist",
+                                type: "boolean",
+                                role: "indicator.reachable",
+                                read: true,
+                                write: false,
                             },
-                            native: {}
+                            native: {},
                         }),
                         adapter.$setObjectNotExists(prefix + ".info.lastSeen", {
-                            "type": "state",
-                            "common": {
-                                "name": "Wann zuletzt eine R�ckmeldung vom Ger�t kam",
-                                "type": "number",
-                                "role": "value.time",
-                                "read": true,
-                                "write": false
+                            type: "state",
+                            common: {
+                                name: "Wann zuletzt eine Rückmeldung vom Gerät kam",
+                                type: "number",
+                                role: "value.time",
+                                read: true,
+                                write: false,
                             },
-                            native: {}
+                            native: {},
                         }),
                         adapter.$setObjectNotExists(prefix + ".info.ip", {
-                            "type": "state",
-                            "common": {
-                                "name": "Letzte bekannte IP-Adresse",
-                                "type": "string",
-                                "role": "value",
-                                "read": true,
-                                "write": false
+                            type: "state",
+                            common: {
+                                name: "Letzte bekannte IP-Adresse",
+                                type: "string",
+                                role: "value",
+                                read: true,
+                                write: false,
                             },
-                            native: {}
+                            native: {},
                         }),
                         adapter.$setObjectNotExists(prefix + ".info.port", {
-                            "type": "state",
-                            "common": {
-                                "name": "Letzter bekannter Port",
-                                "type": "number",
-                                "role": "value",
-                                "read": true,
-                                "write": false
+                            type: "state",
+                            common: {
+                                name: "Letzter bekannter Port",
+                                type: "number",
+                                role: "value",
+                                read: true,
+                                write: false,
                             },
-                            native: {}
+                            native: {},
                         }),
-                        // Schalten des Ger�ts
+                        // Schalten des Geräts
                         adapter.$setObjectNotExists(prefix + ".lastSwitchSource", {
-                            "type": "state",
-                            "common": {
-                                "name": "Von wo das Ger�t zuletzt geschaltet wurde (remote oder lokal)",
-                                "type": "string",
-                                "role": "text",
-                                "read": true,
-                                "write": false
+                            type: "state",
+                            common: {
+                                name: "Von wo das Gerät zuletzt geschaltet wurde (remote oder lokal)",
+                                type: "string",
+                                role: "text",
+                                read: true,
+                                write: false,
                             },
-                            native: {}
+                            native: {},
                         }),
                         adapter.$setObjectNotExists(prefix + ".state", {
-                            "type": "state",
-                            "common": {
-                                "name": "Schaltzustand des Ger�ts",
-                                "type": "boolean",
-                                "role": "switch",
-                                "read": true,
-                                "write": true
+                            type: "state",
+                            common: {
+                                name: "Schaltzustand des Geräts",
+                                type: "boolean",
+                                role: "switch",
+                                read: true,
+                                write: true,
                             },
-                            native: {}
+                            native: {},
                         }),
                     ];
                     // Sicherstellen, dass die Objekte existieren
@@ -375,7 +378,7 @@ function extendPlug(plug) {
     });
 }
 // Unbehandelte Fehler tracen
-process.on('unhandledRejection', function (r) {
+process.on("unhandledRejection", function (r) {
     adapter.log.error("unhandled promise rejection: " + r);
 });
 //# sourceMappingURL=main.js.map

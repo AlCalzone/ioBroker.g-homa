@@ -1,11 +1,12 @@
-import { Global as _, ExtendedAdapter } from "./lib/global";
+Ôªøimport * as gHoma from "g-homa";
+import { ExtendedAdapter, Global as _ } from "./lib/global";
 import { getOwnIpAddresses } from "./lib/network";
 import { entries } from "./lib/object-polyfill";
 import utils from "./lib/utils";
-import * as gHoma from "g-homa";
 
 let server: gHoma.Server;
 let manager: gHoma.Manager;
+// tslint:disable-next-line:prefer-const
 let discovery: gHoma.Discovery;
 
 const ownIP = getOwnIpAddresses()[0];
@@ -13,7 +14,7 @@ const ownIP = getOwnIpAddresses()[0];
 const plugs: { [id: string]: gHoma.Plug } = {};
 
 let adapter: ExtendedAdapter = utils.adapter({
-    name: 'g-homa',
+    name: "g-homa",
 
 	ready: async () => {
 
@@ -41,9 +42,9 @@ let adapter: ExtendedAdapter = utils.adapter({
 				.once("ready", async () => {
 					adapter.log.info("searching plugs");
 					// die Steckdosen zu suchen
-					const plugs = await manager.findAllPlugs();
+					const activePlugs = await manager.findAllPlugs();
 					// und zu konfigurieren
-					const promises = plugs.map(addr => manager.configurePlug(addr.ip, ownIP, address.port));
+					const promises = activePlugs.map((addr) => manager.configurePlug(addr.ip, ownIP, address.port));
 					await Promise.all(promises);
 
 				})
@@ -65,21 +66,22 @@ let adapter: ExtendedAdapter = utils.adapter({
 				extendPlug(plug);
 			})
 			.on("plug dead", async (id: string) => {
-				if (plugs[id])
-					plugs[id].online = false;
+				if (plugs[id]) plugs[id].online = true;
 
 				const iobID = `${id}.alive`;
-				let state = await adapter.$getState(iobID);
-				if (state && state.val != null)
+				const state = await adapter.$getState(iobID);
+				if (state && state.val != null) {
 					await adapter.$setState(iobID, false, true);
+				}
 			})
 			.on("plug alive", async (id: string) => {
 				if (plugs[id]) plugs[id].online = true;
 
 				const iobID = `${id}.alive`;
-				let state = await adapter.$getState(iobID);
-				if (state && state.val != null)
+				const state = await adapter.$getState(iobID);
+				if (state && state.val != null) {
 					await adapter.$setState(iobID, true, true);
+				}
 			})
 			;
 
@@ -91,7 +93,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 
     // is called if a subscribed object changes
     objectChange: (id, obj) => {
-        
+		// TODO: do we need this?
     },
 
     // is called if a subscribed state changes
@@ -104,37 +106,37 @@ let adapter: ExtendedAdapter = utils.adapter({
 				if (matches && matches.length) {
 					const switchId = matches[1];
 					const obj = await adapter.$getObject(switchId.toUpperCase());
-					if (obj && obj.native.id)
+					if (obj && obj.native.id) {
 						server.switchPlug(obj.native.id, state.val);
+					}
 				}
 			}
 		}
     },
 
-    //message: (obj) => {
-        
-    //},
+    // message: (obj) => {
+
+    // },
 
 	// is called when adapter shuts down - callback has to be called under any circumstances!
 	unload: (callback) => {
 		try {
 			server.close();
 			manager.close();
-			
+
 			callback();
 		} catch (e) {
 			callback();
 		}
 	},
 
-
 }) as ExtendedAdapter;
 
-async function readPlugs() : Promise<void> {
+async function readPlugs(): Promise<void> {
 	try {
 		adapter.log.info("enumerating known plugs...");
 		const iobPlugs = await _.$$(`${adapter.namespace}.*`, "device");
-		for (let [id, iobPlug] of entries(iobPlugs)) {
+		for (const [id, iobPlug] of entries(iobPlugs)) {
 			// Objekt erstellen
 			const plug = {
 				id: id,
@@ -145,7 +147,7 @@ async function readPlugs() : Promise<void> {
 				shortmac: iobPlug.native.shortmac,
 				mac: iobPlug.native.mac,
 				online: false,
-				state: false
+				state: false,
 			};
 			plugs[id] = plug;
 			// Eigenschaften einlesen
@@ -161,10 +163,9 @@ async function readPlugs() : Promise<void> {
 			state = await adapter.$getState(`${id}.port`);
 			if (state && state.val != null) plug.port = state.val;
 
-			// nicht den Schaltzustand, der wird vom Ger‰t selbst verraten
+			// nicht den Schaltzustand, der wird vom Ger√§t selbst verraten
 		}
-	}
-	catch (e) {
+	} catch (e) {
 		// egal
 	}
 
@@ -173,7 +174,7 @@ async function readPlugs() : Promise<void> {
 async function extendPlug(plug: gHoma.Plug) {
 	const prefix = plug.id.toUpperCase();
 	let promises: Promise<any>[] = [
-		// Ger‰t selbst
+		// Ger√§t selbst
 		adapter.$setObjectNotExists(
 			`${prefix}`, {
 				type: "device",
@@ -183,99 +184,99 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {
 					id: plug.id,
 					shortmac: plug.shortmac,
-					mac: plug.mac
-				}
-			}
+					mac: plug.mac,
+				},
+			},
 		),
 		// Info-Channel
 		adapter.$setObjectNotExists(
 			`${prefix}.info`, {
 				type: "channel",
 				common: {
-					name: "Information ¸ber das Ger‰t",
+					name: "Information √ºber das Ger√§t",
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 		// Kommunikation
 		adapter.$setObjectNotExists(
 			`${prefix}.info.alive`, {
-				"type": "state",
-				"common": {
-					"name": "Ob das Ger‰t erreichbar ist",
-					"type": "boolean",
-					"role": "indicator.reachable",
-					"read": true,
-					"write": false
+				type: "state",
+				common: {
+					name: "Ob das Ger√§t erreichbar ist",
+					type: "boolean",
+					role: "indicator.reachable",
+					read: true,
+					write: false,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 		adapter.$setObjectNotExists(
 			`${prefix}.info.lastSeen`, {
-				"type": "state",
-				"common": {
-					"name": "Wann zuletzt eine R¸ckmeldung vom Ger‰t kam",
-					"type": "number",
-					"role": "value.time",
-					"read": true,
-					"write": false
+				type: "state",
+				common: {
+					name: "Wann zuletzt eine R√ºckmeldung vom Ger√§t kam",
+					type: "number",
+					role: "value.time",
+					read: true,
+					write: false,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 		adapter.$setObjectNotExists(
 			`${prefix}.info.ip`, {
-				"type": "state",
-				"common": {
-					"name": "Letzte bekannte IP-Adresse",
-					"type": "string",
-					"role": "value",
-					"read": true,
-					"write": false
+				type: "state",
+				common: {
+					name: "Letzte bekannte IP-Adresse",
+					type: "string",
+					role: "value",
+					read: true,
+					write: false,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 		adapter.$setObjectNotExists(
 			`${prefix}.info.port`, {
-				"type": "state",
-				"common": {
-					"name": "Letzter bekannter Port",
-					"type": "number",
-					"role": "value",
-					"read": true,
-					"write": false
+				type: "state",
+				common: {
+					name: "Letzter bekannter Port",
+					type: "number",
+					role: "value",
+					read: true,
+					write: false,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
-		// Schalten des Ger‰ts
+		// Schalten des Ger√§ts
 		adapter.$setObjectNotExists(
 			`${prefix}.lastSwitchSource`, {
-				"type": "state",
-				"common": {
-					"name": "Von wo das Ger‰t zuletzt geschaltet wurde (remote oder lokal)",
-					"type": "string",
-					"role": "text",
-					"read": true,
-					"write": false
+				type: "state",
+				common: {
+					name: "Von wo das Ger√§t zuletzt geschaltet wurde (remote oder lokal)",
+					type: "string",
+					role: "text",
+					read: true,
+					write: false,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 		adapter.$setObjectNotExists(
 			`${prefix}.state`, {
-				"type": "state",
-				"common": {
-					"name": "Schaltzustand des Ger‰ts",
-					"type": "boolean",
-					"role": "switch",
-					"read": true,
-					"write": true
+				type: "state",
+				common: {
+					name: "Schaltzustand des Ger√§ts",
+					type: "boolean",
+					role: "switch",
+					read: true,
+					write: true,
 				},
-				native: {}
-			}
+				native: {},
+			},
 		),
 	];
 	// Sicherstellen, dass die Objekte existieren
@@ -295,6 +296,6 @@ async function extendPlug(plug: gHoma.Plug) {
 }
 
 // Unbehandelte Fehler tracen
-process.on('unhandledRejection', r => {
+process.on("unhandledRejection", (r) => {
 	adapter.log.error("unhandled promise rejection: " + r);
 });

@@ -1,15 +1,14 @@
-﻿import { filter as objFilter, entries } from "./object-polyfill";
+﻿import { entries, filter as objFilter } from "./object-polyfill";
 import { promisify, promisifyNoError } from "./promises";
 
 // ==================================
 
 const colors = {
-	"red": "#db3340",
-	"yellow": "#ffa200",
-	"green": "#5bb12f",
-	"blue": "#0087cb",
+	red: "#db3340",
+	yellow: "#ffa200",
+	green: "#5bb12f",
+	blue: "#0087cb",
 };
-
 
 const replacements: {
     [id: string]: [RegExp, string | ((substring: string, ...args: any[]) => string)];
@@ -20,21 +19,17 @@ const replacements: {
 	strikethrough: [/\~{2}(.*?)\~{2}/g, "<s>$1</s>"],
 	color: [/\{{2}(\w+)\|(.*?)\}{2}/, (str, p1, p2) => {
 		const color = colors[p1];
-		if (!color) return str;
+		if (!color) { return str; }
 
 		return `<span style="color: ${color}">${p2}</span>`;
 	}],
 	fullcolor: [/^\{{2}(\w+)\}{2}(.*?)$/, (str, p1, p2) => {
 		const color = colors[p1];
-		if (!color) return str;
+		if (!color) { return str; }
 
 		return `<span style="color: ${color}">${p2}</span>`;
 	}],
 };
-
-
-// Singleton-Pattern
-let __instance = null;
 
 export interface ExtendedAdapter extends ioBroker.Adapter {
 	__isExtended: boolean;
@@ -70,8 +65,8 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
 
 export class Global {
 
-	public static readonly loglevels = Object.freeze({ "off": 0, "on": 1, "ridiculous": 2 });
-	public static readonly severity = Object.freeze({ "normal": 0, "warn": 1, "error": 2 });
+	public static readonly loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
+	public static readonly severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
 
 	private static _adapter: ExtendedAdapter;
 	public static get adapter(): ExtendedAdapter { return Global._adapter; }
@@ -83,7 +78,7 @@ export class Global {
 	public static get loglevel() { return Global._loglevel; }
 	public static set loglevel(value) { Global._loglevel = value; }
 
-	static extend(adapter: ioBroker.Adapter): ExtendedAdapter {
+	public static extend(adapter: ioBroker.Adapter): ExtendedAdapter {
 		// Eine Handvoll Funktionen promisifizieren
 
 		let ret = adapter as ExtendedAdapter;
@@ -118,17 +113,17 @@ export class Global {
 				$sendTo: promisifyNoError<any>(adapter.sendTo, adapter),
 			});
 		}
-		ret.$createOwnState = async function (id: string, initialValue: any, ack: boolean = true, commonType: ioBroker.CommonType = "mixed") {
+		ret.$createOwnState = async (id: string, initialValue: any, ack: boolean = true, commonType: ioBroker.CommonType = "mixed") => {
 			await ret.$setObject(id, {
 				common: {
 					name: id,
 					role: "value",
 					type: commonType,
 					read: true,
-					write: true
+					write: true,
 				},
 				native: {},
-				type: "state"
+				type: "state",
 			});
 			await ret.$setState(id, initialValue, ack);
 		};
@@ -140,7 +135,7 @@ export class Global {
 		**fett**, ##kursiv##, __unterstrichen__, ~~durchgestrichen~~
 		schwarz{{farbe|bunt}}schwarz, {{farbe}}bunt
 	*/
-	static log(message: string, {level = Global.loglevels.on, severity = Global.severity.normal} = {}) {
+	public static log(message: string, {level = Global.loglevels.on, severity = Global.severity.normal} = {}) {
 		if (!Global.adapter) return;
 		if (level < Global._loglevel) return;
 
@@ -160,7 +155,7 @@ export class Global {
 
 		if (message) {
 			// Farben und Formatierungen
-            for (let [/*key*/, [regex, repl]] of entries(replacements)) {
+            for (const [/*key*/, [regex, repl]] of entries(replacements)) {
                 if (typeof repl === "string") {
                     message = message.replace(regex, repl);
                 } else {
@@ -176,7 +171,7 @@ export class Global {
 	 * Kurzschreibweise für die Ermittlung eines Objekts
 	 * @param id
 	 */
-	static async $(id: string) {
+	public static async $(id: string) {
 		return await Global._adapter.$getForeignObject(id);
 	}
 
@@ -184,18 +179,17 @@ export class Global {
 	 * Kurzschreibweise für die Ermittlung mehrerer Objekte
 	 * @param id
 	 */
-	static async $$(pattern: string, type: ioBroker.ObjectType, role?: string): Promise<{ [id: string]: ioBroker.Object }> {
+	public static async $$(pattern: string, type: ioBroker.ObjectType, role?: string): Promise<{ [id: string]: ioBroker.Object }> {
 		const objects = await Global._adapter.$getForeignObjects(pattern, type);
 		if (role) {
-			return objFilter(objects, o => o.common.role === role);
-		}
-		else {
+			return objFilter(objects, (o) => o.common.role === role);
+		} else {
 			return objects;
 		}
 	}
 
 	// Prüfen auf (un)defined
-	static isdef(value: any): boolean { return value != undefined; }
+	public static isdef(value: any): boolean { return value != undefined; }
 
 	// custom subscriptions
     public static subscribeStates: (pattern: string | RegExp, callback: (id: string, state: ioBroker.State) => void) => string;
