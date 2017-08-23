@@ -6,12 +6,7 @@
     "name": "AlCalzone",
     "email": "d.griesel@gmx.net"
   },
-  "contributors": [
-    {
-      "name": "AlCalzone",
-      "email": "d.griesel@gmx.net"
-    }
-  ],
+  "contributors": [  ],
   "homepage": "https://github.com/AlCalzone/ioBroker.g-homa",
   "license": "MIT",
   "keywords": [
