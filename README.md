@@ -2,7 +2,7 @@
 # ioBroker.g-homa
 =================
 
-**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/AlCalzone/ioBroker.g-homa.svg?branch=master)](https://travis-ci.org/AlCalzone/ioBroker.g-homa)
+**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/AlCalzone/ioBroker.g-homa.svg?branch=master)](https://travis-ci.org/AlCalzone/ioBroker.g-homa) 
 Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/AlCalzone/ioBroker.g-homa?branch=master&svg=true)](https://ci.appveyor.com/project/AlCalzone/ioBroker-g-homa/)
 
 ================
