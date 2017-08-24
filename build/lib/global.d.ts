@@ -45,14 +45,14 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
 }
 export declare class Global {
     static readonly loglevels: Readonly<{
-        "off": number;
-        "on": number;
-        "ridiculous": number;
+        off: number;
+        on: number;
+        ridiculous: number;
     }>;
     static readonly severity: Readonly<{
-        "normal": number;
-        "warn": number;
-        "error": number;
+        normal: number;
+        warn: number;
+        error: number;
     }>;
     private static _adapter;
     static adapter: ExtendedAdapter;

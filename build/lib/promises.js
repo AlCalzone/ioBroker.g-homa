@@ -9,10 +9,12 @@ function promisify(fn, context) {
         context = context || this;
         return new Promise(function (resolve, reject) {
             fn.apply(context, args.concat([function (error, result) {
-                    if (error)
+                    if (error) {
                         return reject(error);
-                    else
+                    }
+                    else {
                         return resolve(result);
+                    }
                 }]));
         });
     };

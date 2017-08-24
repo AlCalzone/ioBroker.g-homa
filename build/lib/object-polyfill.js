@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function entries(obj) {
     return Object.keys(obj)
         .map(function (key) { return [key, obj[key]]; });
-    //for (let key of Object.keys(obj)) {
-    //	yield [key, obj[key]];
-    //}
+    // for (let key of Object.keys(obj)) {
+    // 	yield [key, obj[key]];
+    // }
 }
 exports.entries = entries;
 function values(obj) {

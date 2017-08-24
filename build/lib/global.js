@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
+    return { next: verb(0), "throw": verb(1), "return": verb(2) };
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -39,10 +39,10 @@ var object_polyfill_1 = require("./object-polyfill");
 var promises_1 = require("./promises");
 // ==================================
 var colors = {
-    "red": "#db3340",
-    "yellow": "#ffa200",
-    "green": "#5bb12f",
-    "blue": "#0087cb",
+    red: "#db3340",
+    yellow: "#ffa200",
+    green: "#5bb12f",
+    blue: "#0087cb",
 };
 var replacements = {
     bold: [/\*{2}(.*?)\*{2}/g, "<b>$1</b>"],
@@ -51,19 +51,19 @@ var replacements = {
     strikethrough: [/\~{2}(.*?)\~{2}/g, "<s>$1</s>"],
     color: [/\{{2}(\w+)\|(.*?)\}{2}/, function (str, p1, p2) {
             var color = colors[p1];
-            if (!color)
+            if (!color) {
                 return str;
+            }
             return "<span style=\"color: " + color + "\">" + p2 + "</span>";
         }],
     fullcolor: [/^\{{2}(\w+)\}{2}(.*?)$/, function (str, p1, p2) {
             var color = colors[p1];
-            if (!color)
+            if (!color) {
                 return str;
+            }
             return "<span style=\"color: " + color + "\">" + p2 + "</span>";
         }],
 };
-// Singleton-Pattern
-var __instance = null;
 var Global = (function () {
     function Global() {
     }
@@ -83,6 +83,7 @@ var Global = (function () {
     });
     Global.extend = function (adapter) {
         // Eine Handvoll Funktionen promisifizieren
+        var _this = this;
         var ret = adapter;
         if (!ret.__isExtended) {
             ret.objects.$getObjectList = promises_1.promisify(adapter.objects.getObjectList, adapter.objects);
@@ -113,7 +114,7 @@ var Global = (function () {
         ret.$createOwnState = function (id, initialValue, ack, commonType) {
             if (ack === void 0) { ack = true; }
             if (commonType === void 0) { commonType = "mixed"; }
-            return __awaiter(this, void 0, void 0, function () {
+            return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, ret.$setObject(id, {
@@ -122,10 +123,10 @@ var Global = (function () {
                                     role: "value",
                                     type: commonType,
                                     read: true,
-                                    write: true
+                                    write: true,
                                 },
                                 native: {},
-                                type: "state"
+                                type: "state",
                             })];
                         case 1:
                             _a.sent();
@@ -216,10 +217,10 @@ var Global = (function () {
     };
     // Prüfen auf (un)defined
     Global.isdef = function (value) { return value != undefined; };
-    Global.loglevels = Object.freeze({ "off": 0, "on": 1, "ridiculous": 2 });
-    Global.severity = Object.freeze({ "normal": 0, "warn": 1, "error": 2 });
-    Global._loglevel = Global.loglevels.on;
     return Global;
 }());
+Global.loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
+Global.severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
+Global._loglevel = Global.loglevels.on;
 exports.Global = Global;
 //# sourceMappingURL=global.js.map
