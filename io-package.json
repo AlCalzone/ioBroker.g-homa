@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "news": {
+            "0.0.3": {
+                "en": "Update adapter testing",
+                "de": "Adapter-Tests aktualisiert"
+            },
             "0.0.2": {
                 "en": "Improved support for older NodeJS versions",
                 "de": "Verbesserte Unterstützung für alte NodeJS-Versionen"
