@@ -43,6 +43,9 @@
     <TypeScriptCompile Include="src\lib\ioBroker.d.ts" />
     <TypeScriptCompile Include="src\lib\utils.ts" />
     <Compile Include="test\lib\setup.js" />
+    <TypeScriptCompile Include="src\setup.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="admin" />
