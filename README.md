@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+#### 0.0.4
+* (AlCalzone) Fix reconnection of plugs after power loss
+
 #### 0.0.3
 * (Apollon77) Updated adapter testing
 

@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.0.3",
+        "version": "0.0.4",
         "news": {
+            "0.0.4": {
+                "en": "Fix reconnection of plugs after power loss",
+                "de": "Verbindungswiederherstellung von Steckdosen gefixt"
+            },
             "0.0.3": {
                 "en": "Update adapter testing",
                 "de": "Adapter-Tests aktualisiert"
