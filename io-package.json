@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.0.4",
+        "version": "0.1.0",
         "news": {
+            "0.1.0": {
+                "en": "Added device management functions",
+                "de": "Funktionen zur Geräteverwaltung hinzugefügt"
+            },
             "0.0.4": {
                 "en": "Fix reconnection of plugs after power loss",
                 "de": "Verbindungswiederherstellung von Steckdosen gefixt"
@@ -37,12 +41,37 @@
         "keywords": [ "g-homa" ],
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
-        "type": "hardware"
+        "type": "hardware",
+        "messagebox": true
     },
     "native": {
-
+        "wifiKey": "",
+        "serverPort": 50000
     },
     "objects": [
 
+    ],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Adapter-Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.inclusionOn",
+            "type": "state",
+            "common": {
+                "role": "state",
+                "name": "Inclusion mode activated",
+                "desc": "If inclusion mode is on or off",
+                "type": "boolean",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        }
     ]
 }
