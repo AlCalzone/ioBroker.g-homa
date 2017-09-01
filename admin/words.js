@@ -1,10 +1,31 @@
-// Dictionary (systemDictionary is global variable from adapter-settings.js)
+п»ї// Dictionary (systemDictionary is global variable from adapter-settings.js)
 systemDictionary = {
-	"template adapter settings": {"de": "Beispiel", "ru": "Пример"},
-	"test1":                    {"en": "Test 1", "de": "Test 1", "ru": "Тест 1"},
-	"test2":                    {"en": "Test 2", "de": "Test 2", "ru": "Тест 2"},
+	"G-Homa adapter settings": {
+		"de": "Einstellungen fГјr G-Homa Adapter"
+	},
+	"Settings": {
+		"de": "Einstellungen"
+	},
+	"Manage devices": {
+		"de": "GerГ¤te verwalten"
+	},
+	"WiFi key:": {
+		"de": "WLAN-Passwort:"
+	},
+	"This is neccessary to include new devices into the network": {
+		"de": "Dies wird benГ¶tigt, um neue GerГ¤te ins Netzwerk einzubinden"
+	},
+	"add device": {
+		"de": "GerГ¤t hinzufГјgen"
+	},
+	"please wait...": {
+		"de": "Bitte warten..."
+	},
+	"Please enter the WiFi key!": {
+		"de": "Bitte den WLAN-SchlГјssel eingeben!"
+	},
 	"on save adapter restarts with new config immediately": {
-		"de": "Beim Speichern von Einstellungen der Adapter wird sofort neu gestartet.",
-		"ru": "Сразу после сохранения настроек драйвер перезапуститься с новыми значениями"
+		"de": "Beim Speichern von Einstellungen wird der Adapter sofort neu gestartet.",
+		"ru": "Г‘Г°Г Г§Гі ГЇГ®Г±Г«ГҐ Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї Г­Г Г±ГІГ°Г®ГҐГЄ Г¤Г°Г Г©ГўГҐГ° ГЇГҐГ°ГҐГ§Г ГЇГіГ±ГІГЁГІГјГ±Гї Г± Г­Г®ГўГ»Г¬ГЁ Г§Г­Г Г·ГҐГ­ГЁГїГ¬ГЁ"
 	}
 };

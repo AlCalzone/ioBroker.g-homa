@@ -42,9 +42,11 @@ var network_1 = require("./lib/network");
 var object_polyfill_1 = require("./lib/object-polyfill");
 var utils_1 = require("./lib/utils");
 var server;
+var serverAddress;
 var manager;
 // tslint:disable-next-line:prefer-const
 var discovery;
+var inclusionOn = false;
 var ownIP = network_1.getOwnIpAddresses()[0];
 var plugs = {};
 var adapter = utils_1.default.adapter({
@@ -60,39 +62,27 @@ var adapter = utils_1.default.adapter({
                     // redirect console output
                     console.log = function (msg) { return adapter.log.debug("STDOUT > " + msg); };
                     console.error = function (msg) { return adapter.log.error("STDERR > " + msg); };
+                    // Objekte zurücksetzen
+                    return [4 /*yield*/, adapter.$setState("info.inclusionOn", false, true)];
+                case 1:
+                    // Objekte zurücksetzen
+                    _a.sent();
                     // bekannte Plugs einlesen
                     return [4 /*yield*/, readPlugs()];
-                case 1:
+                case 2:
                     // bekannte Plugs einlesen
                     _a.sent();
                     // Server zuerst starten, damit wir den Port kennen
                     adapter.setState("info.connection", false, true);
                     adapter.log.info("starting server...");
-                    server = new gHoma.Server();
+                    server = new gHoma.Server(adapter.config.serverPort);
                     server.once("server started", function (address) { return __awaiter(_this, void 0, void 0, function () {
-                        var _this = this;
                         return __generator(this, function (_a) {
+                            serverAddress = address;
                             adapter.log.info("server started on port " + address.port);
                             adapter.setState("info.connection", true, true);
-                            // Manager starten, um
-                            manager = (new gHoma.Manager())
-                                .once("ready", function () { return __awaiter(_this, void 0, void 0, function () {
-                                var activePlugs, promises;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            adapter.log.info("searching plugs");
-                                            return [4 /*yield*/, manager.findAllPlugs()];
-                                        case 1:
-                                            activePlugs = _a.sent();
-                                            promises = activePlugs.map(function (addr) { return manager.configurePlug(addr.ip, ownIP, address.port); });
-                                            return [4 /*yield*/, Promise.all(promises)];
-                                        case 2:
-                                            _a.sent();
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); });
+                            // aktive Plugs konfigurieren
+                            configurePlugs();
                             return [2 /*return*/];
                         });
                     }); });
@@ -111,13 +101,14 @@ var adapter = utils_1.default.adapter({
                         extendPlug(plug);
                     })
                         .on("plug dead", function (id) { return __awaiter(_this, void 0, void 0, function () {
-                        var iobID, state;
+                        var prefix, iobID, state;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     if (plugs[id])
-                                        plugs[id].online = true;
-                                    iobID = id + ".alive";
+                                        plugs[id].online = false;
+                                    prefix = id.toUpperCase();
+                                    iobID = prefix + ".info.alive";
                                     return [4 /*yield*/, adapter.$getState(iobID)];
                                 case 1:
                                     state = _a.sent();
@@ -131,13 +122,14 @@ var adapter = utils_1.default.adapter({
                         });
                     }); })
                         .on("plug alive", function (id) { return __awaiter(_this, void 0, void 0, function () {
-                        var iobID, state;
+                        var prefix, iobID, state;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     if (plugs[id])
                                         plugs[id].online = true;
-                                    iobID = id + ".alive";
+                                    prefix = id.toUpperCase();
+                                    iobID = prefix + ".info.alive";
                                     return [4 /*yield*/, adapter.$getState(iobID)];
                                 case 1:
                                     state = _a.sent();
@@ -167,8 +159,8 @@ var adapter = utils_1.default.adapter({
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(state && !state.ack)) return [3 /*break*/, 2];
-                    if (!id.endsWith(".state")) return [3 /*break*/, 2];
+                    if (!(state && !state.ack)) return [3 /*break*/, 4];
+                    if (!id.endsWith(".state")) return [3 /*break*/, 3];
                     matches = /([0-9A-Fa-f]{6})\.state$/.exec(id);
                     if (!(matches && matches.length)) return [3 /*break*/, 2];
                     switchId = matches[1];
@@ -179,12 +171,96 @@ var adapter = utils_1.default.adapter({
                         server.switchPlug(obj.native.id, state.val);
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/];
+                case 2: return [3 /*break*/, 4];
+                case 3:
+                    if (id.match(/info\.inclusionOn/)) {
+                        inclusionOn = state.val;
+                    }
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
             }
         });
     }); },
-    // message: (obj) => {
-    // },
+    message: function (obj) { return __awaiter(_this, void 0, void 0, function () {
+        var _this = this;
+        // responds to the adapter that sent the original message
+        function respond(response) {
+            if (obj.callback)
+                adapter.sendTo(obj.from, obj.command, response, obj.callback);
+        }
+        // make required parameters easier
+        function requireParams(params) {
+            if (!(params && params.length))
+                return true;
+            for (var i = 0; i < params.length; i++) {
+                if (!(obj.message && obj.message.hasOwnProperty(params[i]))) {
+                    respond(predefinedResponses.MISSING_PARAMETER(params[i]));
+                    return false;
+                }
+            }
+            return true;
+        }
+        var predefinedResponses, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    predefinedResponses = {
+                        ACK: { error: null },
+                        OK: { error: null, result: 'ok' },
+                        ERROR_UNKNOWN_COMMAND: { error: 'Unknown command!' },
+                        MISSING_PARAMETER: function (paramName) {
+                            return { error: 'missing parameter "' + paramName + '"!' };
+                        },
+                        COMMAND_RUNNING: { error: 'command running' }
+                    };
+                    if (!obj) return [3 /*break*/, 4];
+                    _a = obj.command;
+                    switch (_a) {
+                        case "inclusion": return [3 /*break*/, 1];
+                    }
+                    return [3 /*break*/, 3];
+                case 1:
+                    if (!requireParams(["psk"])) {
+                        respond(predefinedResponses.MISSING_PARAMETER("psk"));
+                        return [2 /*return*/];
+                    }
+                    if (inclusionOn) {
+                        respond(predefinedResponses.COMMAND_RUNNING);
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, adapter.$setState("info.inclusionOn", true, true)];
+                case 2:
+                    _b.sent();
+                    discovery = new gHoma.Discovery();
+                    discovery
+                        .once("inclusion finished", function (devices) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, adapter.$setState("info.inclusionOn", false, true)];
+                                case 1:
+                                    _a.sent();
+                                    // do something with included devices
+                                    discovery.close();
+                                    if (devices && devices.length > 0) {
+                                        configurePlugs(devices.map(function (d) { return d.ip; }));
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })
+                        .once("ready", function () {
+                        // start inclusion
+                        discovery.beginInclusion(obj.message.psk);
+                    });
+                    respond(predefinedResponses.ACK);
+                    return [2 /*return*/];
+                case 3:
+                    respond(predefinedResponses.ERROR_UNKNOWN_COMMAND);
+                    return [2 /*return*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); },
     // is called when adapter shuts down - callback has to be called under any circumstances!
     unload: function (callback) {
         try {
@@ -197,13 +273,44 @@ var adapter = utils_1.default.adapter({
         }
     },
 });
+function configurePlugs(IPs) {
+    var _this = this;
+    // Manager starten, um
+    manager = (new gHoma.Manager())
+        .once("ready", function () { return __awaiter(_this, void 0, void 0, function () {
+        var promises, activePlugs;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!(IPs && IPs.length)) return [3 /*break*/, 1];
+                    // configure specific plugs
+                    promises = IPs.map(function (ip) { return manager.configurePlug(ip, ownIP, serverAddress.port); });
+                    return [3 /*break*/, 3];
+                case 1:
+                    // configure all plugs
+                    adapter.log.info("searching plugs");
+                    return [4 /*yield*/, manager.findAllPlugs()];
+                case 2:
+                    activePlugs = _a.sent();
+                    // und zu konfigurieren
+                    promises = activePlugs.map(function (addr) { return manager.configurePlug(addr.ip, ownIP, serverAddress.port); });
+                    _a.label = 3;
+                case 3: return [4 /*yield*/, Promise.all(promises)];
+                case 4:
+                    _a.sent();
+                    manager.close();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+}
 function readPlugs() {
     return __awaiter(this, void 0, void 0, function () {
-        var iobPlugs, _i, _a, _b, id, iobPlug, plug, state, e_1;
+        var iobPlugs, _i, _a, _b, id, iobPlug, plugId, plug, state, e_1;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    _c.trys.push([0, 9, , 10]);
+                    _c.trys.push([0, 10, , 11]);
                     adapter.log.info("enumerating known plugs...");
                     return [4 /*yield*/, global_1.Global.$$(adapter.namespace + ".*", "device")];
                 case 1:
@@ -211,10 +318,11 @@ function readPlugs() {
                     _i = 0, _a = object_polyfill_1.entries(iobPlugs);
                     _c.label = 2;
                 case 2:
-                    if (!(_i < _a.length)) return [3 /*break*/, 8];
+                    if (!(_i < _a.length)) return [3 /*break*/, 9];
                     _b = _a[_i], id = _b[0], iobPlug = _b[1];
+                    plugId = id.substr(id.lastIndexOf(".") + 1).toLowerCase();
                     plug = {
-                        id: id,
+                        id: plugId,
                         ip: null,
                         port: null,
                         lastSeen: 0,
@@ -224,36 +332,43 @@ function readPlugs() {
                         online: false,
                         state: false,
                     };
-                    plugs[id] = plug;
-                    return [4 /*yield*/, adapter.$getState(id + ".lastSeen")];
+                    plugs[plugId] = plug;
+                    return [4 /*yield*/, adapter.$getState(id + ".info.lastSeen")];
                 case 3:
                     state = _c.sent();
                     if (state && state.val != null)
                         plug.lastSeen = state.val;
-                    return [4 /*yield*/, adapter.$getState(id + ".lastSwitchSource")];
+                    return [4 /*yield*/, adapter.$getState(id + ".info.lastSwitchSource")];
                 case 4:
                     state = _c.sent();
                     if (state && state.val != null)
                         plug.lastSwitchSource = state.val;
-                    return [4 /*yield*/, adapter.$getState(id + ".ip")];
+                    return [4 /*yield*/, adapter.$getState(id + ".info.ip")];
                 case 5:
                     state = _c.sent();
                     if (state && state.val != null)
                         plug.ip = state.val;
-                    return [4 /*yield*/, adapter.$getState(id + ".port")];
+                    return [4 /*yield*/, adapter.$getState(id + ".info.port")];
                 case 6:
                     state = _c.sent();
                     if (state && state.val != null)
                         plug.port = state.val;
-                    _c.label = 7;
+                    // nicht den Schaltzustand, der wird vom Gerät selbst verraten
+                    // Erreichbarkeit prüfen
+                    plug.online = (Date.now() - plug.lastSeen <= 60000);
+                    return [4 /*yield*/, adapter.$setStateChanged(id + ".info.alive", plug.online, true)];
                 case 7:
+                    _c.sent();
+                    global_1.Global.log("found plug with id " + plugId + " (" + (plug.online ? "online" : "offline") + ")");
+                    _c.label = 8;
+                case 8:
                     _i++;
                     return [3 /*break*/, 2];
-                case 8: return [3 /*break*/, 10];
-                case 9:
+                case 9: return [3 /*break*/, 11];
+                case 10:
                     e_1 = _c.sent();
-                    return [3 /*break*/, 10];
-                case 10: return [2 /*return*/];
+                    return [3 /*break*/, 11];
+                case 11: return [2 /*return*/];
             }
         });
     });

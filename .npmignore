@@ -18,3 +18,4 @@ tsconfig.json
 *.njsproj*
 iobroker.*.tgz
 build/**/*.map
+Thumbs.db

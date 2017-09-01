@@ -5,16 +5,18 @@ import { entries } from "./lib/object-polyfill";
 import utils from "./lib/utils";
 
 let server: gHoma.Server;
+let serverAddress: gHoma.ServerAddress;
 let manager: gHoma.Manager;
 // tslint:disable-next-line:prefer-const
 let discovery: gHoma.Discovery;
+let inclusionOn: boolean = false;
 
 const ownIP = getOwnIpAddresses()[0];
 
 const plugs: { [id: string]: gHoma.Plug } = {};
 
 let adapter: ExtendedAdapter = utils.adapter({
-    name: "g-homa",
+	name: "g-homa",
 
 	ready: async () => {
 
@@ -26,30 +28,23 @@ let adapter: ExtendedAdapter = utils.adapter({
 		console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
 		console.error = (msg) => adapter.log.error("STDERR > " + msg);
 
+		// Objekte zurücksetzen
+		await adapter.$setState("info.inclusionOn", false, true);
+
 		// bekannte Plugs einlesen
 		await readPlugs();
 
 		// Server zuerst starten, damit wir den Port kennen
 		adapter.setState("info.connection", false, true);
 		adapter.log.info("starting server...");
-		server = new gHoma.Server();
+		server = new gHoma.Server(adapter.config.serverPort);
 		server.once("server started", async (address: gHoma.ServerAddress) => {
+			serverAddress = address;
 			adapter.log.info(`server started on port ${address.port}`);
 			adapter.setState("info.connection", true, true);
 
-			// Manager starten, um
-			manager = (new gHoma.Manager())
-				.once("ready", async () => {
-					adapter.log.info("searching plugs");
-					// die Steckdosen zu suchen
-					const activePlugs = await manager.findAllPlugs();
-					// und zu konfigurieren
-					const promises = activePlugs.map((addr) => manager.configurePlug(addr.ip, ownIP, address.port));
-					await Promise.all(promises);
-
-				})
-				;
-
+			// aktive Plugs konfigurieren
+			configurePlugs();
 		});
 		// auf Events des Servers lauschen
 		server
@@ -66,9 +61,10 @@ let adapter: ExtendedAdapter = utils.adapter({
 				extendPlug(plug);
 			})
 			.on("plug dead", async (id: string) => {
-				if (plugs[id]) plugs[id].online = true;
+				if (plugs[id]) plugs[id].online = false;
 
-				const iobID = `${id}.alive`;
+				const prefix = id.toUpperCase();
+				const iobID = `${prefix}.info.alive`;
 				const state = await adapter.$getState(iobID);
 				if (state && state.val != null) {
 					await adapter.$setState(iobID, false, true);
@@ -77,7 +73,8 @@ let adapter: ExtendedAdapter = utils.adapter({
 			.on("plug alive", async (id: string) => {
 				if (plugs[id]) plugs[id].online = true;
 
-				const iobID = `${id}.alive`;
+				const prefix = id.toUpperCase();
+				const iobID = `${prefix}.info.alive`;
 				const state = await adapter.$getState(iobID);
 				if (state && state.val != null) {
 					await adapter.$setState(iobID, true, true);
@@ -91,13 +88,13 @@ let adapter: ExtendedAdapter = utils.adapter({
 
 	},
 
-    // is called if a subscribed object changes
-    objectChange: (id, obj) => {
+	// is called if a subscribed object changes
+	objectChange: (id, obj) => {
 		// TODO: do we need this?
-    },
+	},
 
-    // is called if a subscribed state changes
-    stateChange: async (id, state) => {
+	// is called if a subscribed state changes
+	stateChange: async (id, state) => {
 		if (state && !state.ack) {
 			if (id.endsWith(".state")) {
 				// Switch soll geschaltet werden
@@ -110,13 +107,77 @@ let adapter: ExtendedAdapter = utils.adapter({
 						server.switchPlug(obj.native.id, state.val);
 					}
 				}
+			} else if (id.match(/info\.inclusionOn/)) {
+				inclusionOn = state.val;
 			}
 		}
-    },
+	},
 
-    // message: (obj) => {
+	message: async (obj) => {
+		// responds to the adapter that sent the original message
+		function respond(response) {
+			if (obj.callback)
+				adapter.sendTo(obj.from, obj.command, response, obj.callback);
+		}
+		// some predefined responses so we only have to define them once
+		var predefinedResponses = {
+			ACK: { error: null },
+			OK: { error: null, result: 'ok' },
+			ERROR_UNKNOWN_COMMAND: { error: 'Unknown command!' },
+			MISSING_PARAMETER: function (paramName) {
+				return { error: 'missing parameter "' + paramName + '"!' };
+			},
+			COMMAND_RUNNING: { error: 'command running' }
+		};
+		// make required parameters easier
+		function requireParams(params) {
+			if (!(params && params.length)) return true;
+			for (var i = 0; i < params.length; i++) {
+				if (!(obj.message && obj.message.hasOwnProperty(params[i]))) {
+					respond(predefinedResponses.MISSING_PARAMETER(params[i]));
+					return false;
+				}
+			}
+			return true;
+		}
 
-    // },
+		// handle the message
+		if (obj) {
+			switch (obj.command) {
+				case "inclusion":
+					if (!requireParams(["psk"])) {
+						respond(predefinedResponses.MISSING_PARAMETER("psk"));
+						return;
+					}
+					if (inclusionOn) {
+						respond(predefinedResponses.COMMAND_RUNNING);
+						return;
+					}
+
+					await adapter.$setState("info.inclusionOn", true, true);
+					discovery = new gHoma.Discovery();
+					discovery
+						.once("inclusion finished", async (devices) => {
+							await adapter.$setState("info.inclusionOn", false, true);
+							// do something with included devices
+							discovery.close();
+							if (devices && devices.length > 0) {
+								configurePlugs(devices.map(d => d.ip));
+							}
+						})
+						.once("ready", () => {
+							// start inclusion
+							discovery.beginInclusion(obj.message.psk);
+						})
+						;
+					respond(predefinedResponses.ACK);
+					return;
+				default:
+					respond(predefinedResponses.ERROR_UNKNOWN_COMMAND);
+					return;
+			}
+		}
+	},
 
 	// is called when adapter shuts down - callback has to be called under any circumstances!
 	unload: (callback) => {
@@ -132,14 +193,37 @@ let adapter: ExtendedAdapter = utils.adapter({
 
 }) as ExtendedAdapter;
 
+function configurePlugs(IPs?: string[]) {
+	// Manager starten, um
+	manager = (new gHoma.Manager())
+		.once("ready", async () => {
+			let promises;
+			if (IPs && IPs.length) {
+				// configure specific plugs
+				promises = IPs.map((ip) => manager.configurePlug(ip, ownIP, serverAddress.port));
+			} else {
+				// configure all plugs
+				adapter.log.info("searching plugs");
+				// die Steckdosen zu suchen
+				const activePlugs = await manager.findAllPlugs();
+				// und zu konfigurieren
+				promises = activePlugs.map((addr) => manager.configurePlug(addr.ip, ownIP, serverAddress.port));
+			}
+			await Promise.all(promises);
+			manager.close();
+		})
+	;
+}
+
 async function readPlugs(): Promise<void> {
 	try {
 		adapter.log.info("enumerating known plugs...");
 		const iobPlugs = await _.$$(`${adapter.namespace}.*`, "device");
 		for (const [id, iobPlug] of entries(iobPlugs)) {
 			// Objekt erstellen
+			const plugId = id.substr(id.lastIndexOf(".") + 1).toLowerCase();
 			const plug = {
-				id: id,
+				id: plugId,
 				ip: null,
 				port: null,
 				lastSeen: 0,
@@ -149,21 +233,27 @@ async function readPlugs(): Promise<void> {
 				online: false,
 				state: false,
 			};
-			plugs[id] = plug;
+			plugs[plugId] = plug;
 			// Eigenschaften einlesen
-			let state = await adapter.$getState(`${id}.lastSeen`);
+			let state = await adapter.$getState(`${id}.info.lastSeen`);
 			if (state && state.val != null) plug.lastSeen = state.val;
 
-			state = await adapter.$getState(`${id}.lastSwitchSource`);
+			state = await adapter.$getState(`${id}.info.lastSwitchSource`);
 			if (state && state.val != null) plug.lastSwitchSource = state.val;
 
-			state = await adapter.$getState(`${id}.ip`);
+			state = await adapter.$getState(`${id}.info.ip`);
 			if (state && state.val != null) plug.ip = state.val;
 
-			state = await adapter.$getState(`${id}.port`);
+			state = await adapter.$getState(`${id}.info.port`);
 			if (state && state.val != null) plug.port = state.val;
 
 			// nicht den Schaltzustand, der wird vom Gerät selbst verraten
+
+			// Erreichbarkeit prüfen
+			plug.online = (Date.now() - plug.lastSeen <= 60000);
+			await adapter.$setStateChanged(`${id}.info.alive`, plug.online, true);
+			_.log(`found plug with id ${plugId} (${plug.online ? "online" : "offline"})`);
+
 		}
 	} catch (e) {
 		// egal

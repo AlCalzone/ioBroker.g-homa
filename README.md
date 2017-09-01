@@ -12,6 +12,10 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+#### 0.1.0
+* (AlCalzone) Added device management functions
+* (AlCalzone) Fix alive/dead detection
+
 #### 0.0.4
 * (AlCalzone) Fix reconnection of plugs after power loss
 
