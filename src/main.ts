@@ -386,6 +386,12 @@ async function extendPlug(plug: gHoma.Plug) {
 }
 
 // Unbehandelte Fehler tracen
-process.on("unhandledRejection", (r) => {
-	adapter.log.error("unhandled promise rejection: " + r);
+process.on("unhandledRejection", (err: Error) => {
+	adapter.log.error("unhandled promise rejection: " + err.message);
+	if (err.stack != null) adapter.log.error("> stack: " + err.stack);
+});
+process.on("uncaughtException", (err: Error) => {
+	adapter.log.error("unhandled exception:" + err.message);
+	if (err.stack != null) adapter.log.error("> stack: " + err.stack);
+	process.exit(1);
 });
