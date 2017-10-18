@@ -44,7 +44,7 @@
         "keywords": [ "g-homa" ],
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
-        "type": "hardware",
+        "type": "iot-systems",
         "messagebox": true
     },
     "native": {
