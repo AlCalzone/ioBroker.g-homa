@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+#### 0.1.1
+* (AlCalzone) Fixed errors on NodeJS 4.x
+
 #### 0.1.0
 * (AlCalzone) Added device management functions
 * (AlCalzone) Fix alive/dead detection

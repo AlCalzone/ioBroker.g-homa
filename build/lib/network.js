@@ -37,4 +37,3 @@ function getOwnIpAddresses() {
     return addresses;
 }
 exports.getOwnIpAddresses = getOwnIpAddresses;
-//# sourceMappingURL=network.js.map

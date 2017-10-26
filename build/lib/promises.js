@@ -45,4 +45,3 @@ function waterfall() {
     return fn.reduce(function (prev, cur) { return prev.then(cur); }, Promise.resolve());
 }
 exports.waterfall = waterfall;
-//# sourceMappingURL=promises.js.map

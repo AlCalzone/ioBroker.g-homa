@@ -31,4 +31,3 @@ function composeObject(properties) {
     }, {});
 }
 exports.composeObject = composeObject;
-//# sourceMappingURL=object-polyfill.js.map

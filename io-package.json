@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "news": {
+            "0.1.1": {
+                "en": "Fixed errors on NodeJS 4.x.",
+                "de": "Fehler unter NodeJS 4.x behoben."
+            },
             "0.1.0": {
                 "en": "Added device management functions",
                 "de": "Funktionen zur Geräteverwaltung hinzugefügt"

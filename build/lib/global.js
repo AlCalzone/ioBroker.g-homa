@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -64,7 +64,7 @@ var replacements = {
             return "<span style=\"color: " + color + "\">" + p2 + "</span>";
         }],
 };
-var Global = (function () {
+var Global = /** @class */ (function () {
     function Global() {
     }
     Object.defineProperty(Global, "adapter", {
@@ -217,10 +217,9 @@ var Global = (function () {
     };
     // Prüfen auf (un)defined
     Global.isdef = function (value) { return value != undefined; };
+    Global.loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
+    Global.severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
+    Global._loglevel = Global.loglevels.on;
     return Global;
 }());
-Global.loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
-Global.severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
-Global._loglevel = Global.loglevels.on;
 exports.Global = Global;
-//# sourceMappingURL=global.js.map
