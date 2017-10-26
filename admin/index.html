@@ -164,7 +164,7 @@
 								// we are interested in alive, ip, port
 								if (vid.match(/\.info\.(alive|ip|port)$/)) {
 									values[vid] = _values[vid];
-								} else if (/info\.inclusionOn$/) {
+								} else if (vid.match(/info\.inclusionOn$/)) {
 									inclusion = _values[vid].val;
 									updateInclusionStatus();
 								}

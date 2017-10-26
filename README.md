@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+#### 0.1.2
+* (AlCalzone) Fixed bug with inclusion in admin UI
+
 #### 0.1.1
 * (AlCalzone) Fixed errors on NodeJS 4.x
 
