@@ -189,29 +189,36 @@ var adapter = utils_1.default.adapter({
                 adapter.sendTo(obj.from, obj.command, response, obj.callback);
         }
         // make required parameters easier
-        function requireParams(params) {
+        function requireParams() {
+            var params = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                params[_i] = arguments[_i];
+            }
             if (!(params && params.length))
                 return true;
-            for (var i = 0; i < params.length; i++) {
-                if (!(obj.message && obj.message.hasOwnProperty(params[i]))) {
-                    respond(predefinedResponses.MISSING_PARAMETER(params[i]));
+            for (var _a = 0, params_1 = params; _a < params_1.length; _a++) {
+                var param = params_1[_a];
+                if (!(obj.message && obj.message.hasOwnProperty(param))) {
+                    respond(responses.MISSING_PARAMETER(param));
                     return false;
                 }
             }
             return true;
         }
-        var predefinedResponses, _a;
+        var responses, _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    predefinedResponses = {
+                    responses = {
                         ACK: { error: null },
-                        OK: { error: null, result: 'ok' },
-                        ERROR_UNKNOWN_COMMAND: { error: 'Unknown command!' },
+                        OK: { error: null, result: "ok" },
+                        ERROR_UNKNOWN_COMMAND: { error: "Unknown command!" },
                         MISSING_PARAMETER: function (paramName) {
                             return { error: 'missing parameter "' + paramName + '"!' };
                         },
-                        COMMAND_RUNNING: { error: 'command running' }
+                        COMMAND_RUNNING: { error: "command running" },
+                        RESULT: function (result) { return ({ error: null, result: result }); },
+                        ERROR: function (error) { return ({ error: error }); },
                     };
                     if (!obj) return [3 /*break*/, 4];
                     _a = obj.command;
@@ -220,12 +227,12 @@ var adapter = utils_1.default.adapter({
                     }
                     return [3 /*break*/, 3];
                 case 1:
-                    if (!requireParams(["psk"])) {
-                        respond(predefinedResponses.MISSING_PARAMETER("psk"));
+                    if (!requireParams("psk")) {
+                        respond(responses.MISSING_PARAMETER("psk"));
                         return [2 /*return*/];
                     }
                     if (inclusionOn) {
-                        respond(predefinedResponses.COMMAND_RUNNING);
+                        respond(responses.COMMAND_RUNNING);
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, adapter.$setState("info.inclusionOn", true, true)];
@@ -252,10 +259,10 @@ var adapter = utils_1.default.adapter({
                         // start inclusion
                         discovery.beginInclusion(obj.message.psk);
                     });
-                    respond(predefinedResponses.ACK);
+                    respond(responses.ACK);
                     return [2 /*return*/];
                 case 3:
-                    respond(predefinedResponses.ERROR_UNKNOWN_COMMAND);
+                    respond(responses.ERROR_UNKNOWN_COMMAND);
                     return [2 /*return*/];
                 case 4: return [2 /*return*/];
             }
@@ -273,7 +280,7 @@ var adapter = utils_1.default.adapter({
         }
     },
 });
-function configurePlugs(IPs) {
+function configurePlugs(ipAddresses) {
     var _this = this;
     // Manager starten, um
     manager = (new gHoma.Manager())
@@ -282,9 +289,9 @@ function configurePlugs(IPs) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(IPs && IPs.length)) return [3 /*break*/, 1];
+                    if (!(ipAddresses && ipAddresses.length)) return [3 /*break*/, 1];
                     // configure specific plugs
-                    promises = IPs.map(function (ip) { return manager.configurePlug(ip, ownIP, serverAddress.port); });
+                    promises = ipAddresses.map(function (ip) { return manager.configurePlug(ip, ownIP, serverAddress.port); });
                     return [3 /*break*/, 3];
                 case 1:
                     // configure all plugs
@@ -325,12 +332,15 @@ function readPlugs() {
                         id: plugId,
                         ip: null,
                         port: null,
+                        type: iobPlug.native.type,
+                        firmware: iobPlug.native.firmware,
                         lastSeen: 0,
                         lastSwitchSource: "unknown",
                         shortmac: iobPlug.native.shortmac,
                         mac: iobPlug.native.mac,
                         online: false,
                         state: false,
+                        energyMeasurement: {},
                     };
                     plugs[plugId] = plug;
                     return [4 /*yield*/, adapter.$getState(id + ".info.lastSeen")];
@@ -375,9 +385,9 @@ function readPlugs() {
 }
 function extendPlug(plug) {
     return __awaiter(this, void 0, void 0, function () {
-        var prefix, promises;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var prefix, promises, _i, _a, measurement;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     prefix = plug.id.toUpperCase();
                     promises = [
@@ -391,6 +401,8 @@ function extendPlug(plug) {
                                 id: plug.id,
                                 shortmac: plug.shortmac,
                                 mac: plug.mac,
+                                type: plug.type,
+                                firmware: plug.firmware,
                             },
                         }),
                         // Info-Channel
@@ -470,11 +482,68 @@ function extendPlug(plug) {
                             native: {},
                         }),
                     ];
+                    // Alle benötigten Energiemessungs-Objekte erstellen
+                    if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
+                        if (plug.energyMeasurement.current != null) {
+                            promises.push(adapter.$setObjectNotExists(prefix + ".current", {
+                                type: "state",
+                                common: {
+                                    name: "Stromstärke",
+                                    type: "number",
+                                    role: "level.current",
+                                    read: true,
+                                    write: false,
+                                    unit: "A",
+                                },
+                                native: {},
+                            }));
+                        }
+                        if (plug.energyMeasurement.powerFactor != null) {
+                            promises.push(adapter.$setObjectNotExists(prefix + ".powerFactor", {
+                                type: "state",
+                                common: {
+                                    name: "Wirkfaktor",
+                                    type: "number",
+                                    role: "level.powerFactor",
+                                    read: true,
+                                    write: false,
+                                },
+                                native: {},
+                            }));
+                        }
+                        if (plug.energyMeasurement.power != null) {
+                            promises.push(adapter.$setObjectNotExists(prefix + ".power", {
+                                type: "state",
+                                common: {
+                                    name: "Leistungaufnahme",
+                                    type: "number",
+                                    role: "level.power",
+                                    read: true,
+                                    write: false,
+                                    unit: "W",
+                                },
+                                native: {},
+                            }));
+                        }
+                        if (plug.energyMeasurement.voltage != null) {
+                            promises.push(adapter.$setObjectNotExists(prefix + ".voltage", {
+                                type: "state",
+                                common: {
+                                    name: "Spannung",
+                                    type: "number",
+                                    role: "level.voltage",
+                                    read: true,
+                                    write: false,
+                                },
+                                native: {},
+                            }));
+                        }
+                    }
                     // Sicherstellen, dass die Objekte existieren
                     return [4 /*yield*/, Promise.all(promises)];
                 case 1:
                     // Sicherstellen, dass die Objekte existieren
-                    _a.sent();
+                    _b.sent();
                     // Jetzt die Werte speichern
                     promises = [
                         adapter.$setState(prefix + ".info.alive", plug.online, true),
@@ -484,9 +553,16 @@ function extendPlug(plug) {
                         adapter.$setState(prefix + ".lastSwitchSource", plug.lastSwitchSource, true),
                         adapter.$setState(prefix + ".state", plug.state, true),
                     ];
+                    // alle vorhandenen Energiemessungs-Werte speichern
+                    for (_i = 0, _a = ["voltage", "current", "power", "powerFactor"]; _i < _a.length; _i++) {
+                        measurement = _a[_i];
+                        if (measurement in plug.energyMeasurement) {
+                            promises.push(adapter.$setState(prefix + "." + measurement, plug.energyMeasurement[measurement], true));
+                        }
+                    }
                     return [4 /*yield*/, Promise.all(promises)];
                 case 2:
-                    _a.sent();
+                    _b.sent();
                     return [2 /*return*/];
             }
         });
