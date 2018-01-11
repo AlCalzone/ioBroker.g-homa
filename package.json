@@ -1,6 +1,6 @@
 {
   "name": "iobroker.g-homa",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "ioBroker adapter to control G-Homa WiFi plugs",
   "author": {
     "name": "AlCalzone",
@@ -20,18 +20,18 @@
     "url": "https://github.com/AlCalzone/ioBroker.g-homa"
   },
   "dependencies": {
-    "g-homa": "^0.0.5",
+    "g-homa": "^1.0.0",
     "minimist": "^1.2.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/mocha": "^2.2.43",
+    "@types/chai": "^4.1.0",
+    "@types/mocha": "^2.2.46",
     "@types/node": "^4.2.20",
     "chai": "^4.1.2",
     "mocha": "^4.1.0",
-    "nyc": "^11.2.1",
-    "tslint": "^5.7.0",
-    "typescript": "^2.5.2"
+    "nyc": "^11.4.1",
+    "tslint": "^5.9.1",
+    "typescript": "^2.6.2"
   },
   "main": "build/main.js",
   "scripts": {

@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "news": {
+            "0.2.0": {
+                "en": "Experimental support for plugs with energy measurement",
+                "de": "Experimentelle Unterstützung für Steckdosen mit Energiemessung"
+            },
             "0.1.2": {
                 "en": "Bugfixes",
                 "de": "Bugfixes"

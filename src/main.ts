@@ -3,6 +3,7 @@ import { ExtendedAdapter, Global as _ } from "./lib/global";
 import { getOwnIpAddresses } from "./lib/network";
 import { entries } from "./lib/object-polyfill";
 import utils from "./lib/utils";
+import { Plug } from "g-homa/build/server";
 
 let server: gHoma.Server;
 let serverAddress: gHoma.ServerAddress;
@@ -116,25 +117,26 @@ let adapter: ExtendedAdapter = utils.adapter({
 	message: async (obj) => {
 		// responds to the adapter that sent the original message
 		function respond(response) {
-			if (obj.callback)
-				adapter.sendTo(obj.from, obj.command, response, obj.callback);
+			if (obj.callback) adapter.sendTo(obj.from, obj.command, response, obj.callback);
 		}
 		// some predefined responses so we only have to define them once
-		var predefinedResponses = {
+		const responses = {
 			ACK: { error: null },
-			OK: { error: null, result: 'ok' },
-			ERROR_UNKNOWN_COMMAND: { error: 'Unknown command!' },
-			MISSING_PARAMETER: function (paramName) {
+			OK: { error: null, result: "ok" },
+			ERROR_UNKNOWN_COMMAND: { error: "Unknown command!" },
+			MISSING_PARAMETER: (paramName) => {
 				return { error: 'missing parameter "' + paramName + '"!' };
 			},
-			COMMAND_RUNNING: { error: 'command running' }
+			COMMAND_RUNNING: { error: "command running" },
+			RESULT: (result) => ({ error: null, result }),
+			ERROR: (error: string) => ({ error }),
 		};
 		// make required parameters easier
-		function requireParams(params) {
+		function requireParams(...params: string[]) {
 			if (!(params && params.length)) return true;
-			for (var i = 0; i < params.length; i++) {
-				if (!(obj.message && obj.message.hasOwnProperty(params[i]))) {
-					respond(predefinedResponses.MISSING_PARAMETER(params[i]));
+			for (const param of params) {
+				if (!(obj.message && obj.message.hasOwnProperty(param))) {
+					respond(responses.MISSING_PARAMETER(param));
 					return false;
 				}
 			}
@@ -145,12 +147,12 @@ let adapter: ExtendedAdapter = utils.adapter({
 		if (obj) {
 			switch (obj.command) {
 				case "inclusion":
-					if (!requireParams(["psk"])) {
-						respond(predefinedResponses.MISSING_PARAMETER("psk"));
+					if (!requireParams("psk")) {
+						respond(responses.MISSING_PARAMETER("psk"));
 						return;
 					}
 					if (inclusionOn) {
-						respond(predefinedResponses.COMMAND_RUNNING);
+						respond(responses.COMMAND_RUNNING);
 						return;
 					}
 
@@ -170,10 +172,10 @@ let adapter: ExtendedAdapter = utils.adapter({
 							discovery.beginInclusion(obj.message.psk);
 						})
 						;
-					respond(predefinedResponses.ACK);
+					respond(responses.ACK);
 					return;
 				default:
-					respond(predefinedResponses.ERROR_UNKNOWN_COMMAND);
+					respond(responses.ERROR_UNKNOWN_COMMAND);
 					return;
 			}
 		}
@@ -193,14 +195,14 @@ let adapter: ExtendedAdapter = utils.adapter({
 
 }) as ExtendedAdapter;
 
-function configurePlugs(IPs?: string[]) {
+function configurePlugs(ipAddresses?: string[]) {
 	// Manager starten, um
 	manager = (new gHoma.Manager())
 		.once("ready", async () => {
 			let promises;
-			if (IPs && IPs.length) {
+			if (ipAddresses && ipAddresses.length) {
 				// configure specific plugs
-				promises = IPs.map((ip) => manager.configurePlug(ip, ownIP, serverAddress.port));
+				promises = ipAddresses.map((ip) => manager.configurePlug(ip, ownIP, serverAddress.port));
 			} else {
 				// configure all plugs
 				adapter.log.info("searching plugs");
@@ -226,12 +228,15 @@ async function readPlugs(): Promise<void> {
 				id: plugId,
 				ip: null,
 				port: null,
+				type: iobPlug.native.type,
+				firmware: iobPlug.native.firmware,
 				lastSeen: 0,
-				lastSwitchSource: "unknown" as gHoma.SwitchSource,
+				lastSwitchSource: "unknown" as keyof typeof gHoma.SwitchSource,
 				shortmac: iobPlug.native.shortmac,
 				mac: iobPlug.native.mac,
 				online: false,
 				state: false,
+				energyMeasurement: {},
 			};
 			plugs[plugId] = plug;
 			// Eigenschaften einlesen
@@ -275,6 +280,8 @@ async function extendPlug(plug: gHoma.Plug) {
 					id: plug.id,
 					shortmac: plug.shortmac,
 					mac: plug.mac,
+					type: plug.type,
+					firmware: plug.firmware,
 				},
 			},
 		),
@@ -369,6 +376,83 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 	];
+	// Alle benötigten Energiemessungs-Objekte erstellen
+	if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
+		if (plug.energyMeasurement.current != null) {
+			promises.push(
+				adapter.$setObjectNotExists(
+					`${prefix}.current`, {
+						type: "state",
+						common: {
+							name: "Stromstärke",
+							type: "number",
+							role: "level.current",
+							read: true,
+							write: false,
+							unit: "A",
+						},
+						native: {},
+					},
+				),
+			);
+		}
+
+		if (plug.energyMeasurement.powerFactor != null) {
+			promises.push(
+				adapter.$setObjectNotExists(
+					`${prefix}.powerFactor`, {
+						type: "state",
+						common: {
+							name: "Wirkfaktor",
+							type: "number",
+							role: "level.powerFactor",
+							read: true,
+							write: false,
+						},
+						native: {},
+					},
+				),
+			);
+		}
+
+		if (plug.energyMeasurement.power != null) {
+			promises.push(
+				adapter.$setObjectNotExists(
+					`${prefix}.power`, {
+						type: "state",
+						common: {
+							name: "Leistungaufnahme",
+							type: "number",
+							role: "level.power",
+							read: true,
+							write: false,
+							unit: "W",
+						},
+						native: {},
+					},
+				),
+			);
+		}
+
+		if (plug.energyMeasurement.voltage != null) {
+			promises.push(
+				adapter.$setObjectNotExists(
+					`${prefix}.voltage`, {
+						type: "state",
+						common: {
+							name: "Spannung",
+							type: "number",
+							role: "level.voltage",
+							read: true,
+							write: false,
+						},
+						native: {},
+					},
+				),
+			);
+		}
+
+	}
 	// Sicherstellen, dass die Objekte existieren
 	await Promise.all(promises);
 
@@ -381,6 +465,12 @@ async function extendPlug(plug: gHoma.Plug) {
 		adapter.$setState(`${prefix}.lastSwitchSource`, plug.lastSwitchSource, true),
 		adapter.$setState(`${prefix}.state`, plug.state, true),
 	];
+	// alle vorhandenen Energiemessungs-Werte speichern
+	for (const measurement of ["voltage", "current", "power", "powerFactor"]) {
+		if (measurement in plug.energyMeasurement) {
+			promises.push(adapter.$setState(`${prefix}.${measurement}`, plug.energyMeasurement[measurement], true));
+		}
+	}
 	await Promise.all(promises);
 
 }

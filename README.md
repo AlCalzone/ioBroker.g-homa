@@ -12,26 +12,29 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
-#### 0.1.2
+### 0.2.0 (2018-01-11)
+* (AlCalzone) Experimental support for plugs with energy measurement
+
+### 0.1.2
 * (AlCalzone) Fixed bug with inclusion in admin UI
 
-#### 0.1.1
+### 0.1.1
 * (AlCalzone) Fixed errors on NodeJS 4.x
 
-#### 0.1.0
+### 0.1.0
 * (AlCalzone) Added device management functions
 * (AlCalzone) Fix alive/dead detection
 
-#### 0.0.4
+### 0.0.4
 * (AlCalzone) Fix reconnection of plugs after power loss
 
-#### 0.0.3
+### 0.0.3
 * (Apollon77) Updated adapter testing
 
-#### 0.0.2
+### 0.0.2
 * (AlCalzone) Improved support for older NodeJS versions
 
-#### 0.0.1
+### 0.0.1
 * (AlCalzone) initial release
 
 ## License
