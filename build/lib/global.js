@@ -86,7 +86,6 @@ var Global = /** @class */ (function () {
         var _this = this;
         var ret = adapter;
         if (!ret.__isExtended) {
-            ret.objects.$getObjectList = promises_1.promisify(adapter.objects.getObjectList, adapter.objects);
             ret = Object.assign(ret, {
                 $getObject: promises_1.promisify(adapter.getObject, adapter),
                 $setObject: promises_1.promisify(adapter.setObject, adapter),

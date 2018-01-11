@@ -1,8 +1,7 @@
-﻿import * as minimist from "minimist";
-import * as gHoma from "g-homa";
+﻿import * as gHoma from "g-homa";
+import * as minimist from "minimist";
 
 const argv = minimist(process.argv.slice(2));
-//console.dir(argv);
 
 function printUsage() {
 	console.log("usage: node setup.js <command> [options]");
@@ -43,14 +42,14 @@ async function main() {
 				.on("inclusion finished", (devices) => {
 					// do something with included devices
 					console.log("inclusion process finished...");
-					const numPlugs = Object.keys(devices).length
+					const numPlugs = Object.keys(devices).length;
 					if (numPlugs > 0) {
-						console.log(`found ${numPlugs} plugs:`)
+						console.log(`found ${numPlugs} plugs:`);
 						for (const key of Object.keys(devices)) {
 							console.log(`  IP = ${key}, MAC = ${devices[key]}`);
 						}
 					} else {
-						console.log("no plugs found!")
+						console.log("no plugs found!");
 					}
 					// we're done!
 					process.exit(0);
@@ -62,7 +61,6 @@ async function main() {
 				;
 			break;
 
-
 		case "configure":
 			const manager = new gHoma.Manager();
 			const ignoredMacs = ensureArray(argv.ignore || []);
@@ -71,7 +69,7 @@ async function main() {
 				.once("ready", async () => {
 					console.log("searching plugs...");
 					const plugs = await manager.findAllPlugs(/* optional duration in ms */);
-					const numPlugs = Object.keys(plugs).length
+					const numPlugs = Object.keys(plugs).length;
 					console.log(`${numPlugs} plugs found`);
 
 					console.log("");
@@ -87,7 +85,7 @@ async function main() {
 							// configure this plug
 							return manager.configurePlug(p.ip, argv.server, argv.port);
 						}
-					})
+					});
 					await Promise.all(promises);
 					console.log("done!");
 					// we're done!

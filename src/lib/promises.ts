@@ -23,14 +23,14 @@ export function promisify(fn, context) {
 
 export function promisifyNoError<T>(fn, context): (...args: any[]) => Promise<T>;
 export function promisifyNoError(fn, context) {
-    return function(...args) {
-        context = context || this;
-        return new Promise((resolve, reject) => {
-            fn.apply(context, [...args, (result) => {
-                return resolve(result);
-            }]);
-        });
-    };
+	return function(...args) {
+		context = context || this;
+		return new Promise((resolve, reject) => {
+			fn.apply(context, [...args, (result) => {
+				return resolve(result);
+			}]);
+		});
+	};
 }
 
 export function waterfall(...fn: PromiseCallback[]): Promise<any> {

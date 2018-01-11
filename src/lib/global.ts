@@ -11,7 +11,7 @@ const colors = {
 };
 
 const replacements: {
-    [id: string]: [RegExp, string | ((substring: string, ...args: any[]) => string)];
+	[id: string]: [RegExp, string | ((substring: string, ...args: any[]) => string)];
 } = {
 	bold: [/\*{2}(.*?)\*{2}/g, "<b>$1</b>"],
 	italic: [/#{2}(.*?)#{2}/g, "<i>$1</i>"],
@@ -35,32 +35,32 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
 	__isExtended: boolean;
 
 	$getObject: (id: string, options?: any) => Promise<ioBroker.Object>;
-    $getAdapterObjects: () => Promise<{ [id: string]: ioBroker.Object }>;
+	$getAdapterObjects: () => Promise<{ [id: string]: ioBroker.Object }>;
 	$setObject: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
 	$setObjectNotExists: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-    $getForeignObject: (id: string, options?: any) => Promise<ioBroker.Object>;
+	$getForeignObject: (id: string, options?: any) => Promise<ioBroker.Object>;
 	$setForeignObject: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
 	$setForeignObjectNotExists: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-    $getForeignObjects: (pattern: string, type?: ioBroker.ObjectType, enums?: ioBroker.EnumList, options?: any) => Promise<{ [id: string]: ioBroker.Object }>;
+	$getForeignObjects: (pattern: string, type?: ioBroker.ObjectType, enums?: ioBroker.EnumList, options?: any) => Promise<{ [id: string]: ioBroker.Object }>;
 
 	$createDevice: (deviceName: string, common?: ioBroker.ObjectCommon, native?: any, options?: any) => Promise<{ id: string }>;
 	$deleteDevice: (deviceName: string, options?: any) => Promise<void>;
 	$createChannel: (parentDevice: string, channelName: string, roleOrCommon?: string | ioBroker.ChannelCommon, native?: any, options?: any) => Promise<{ id: string }>;
 	$deleteChannel: (parentDevice: string, channelName: string, options?: any) => Promise<void>;
 
-    $getState: (id: string, options?: any) => Promise<ioBroker.State>;
-    $getStates: (pattern: string, options?: any) => Promise<{ [id: string]: ioBroker.State }>;
+	$getState: (id: string, options?: any) => Promise<ioBroker.State>;
+	$getStates: (pattern: string, options?: any) => Promise<{ [id: string]: ioBroker.State }>;
 	$setState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
 	$setStateChanged: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
 	$createState: (parentDevice: string, parentChannel: string, stateName: string, roleOrCommon?: string | ioBroker.StateCommon, native?: any, options?: any) => Promise<{ id: string }>;
 	$deleteState: (parentDevice: string, parentChannel: string, stateName: string, options?: any) => Promise<void>;
 
 	$getForeignState: (id: string, options?: any) => Promise<ioBroker.State>;
-    $setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
+	$setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
 
 	$createOwnState: (id: string, initialValue: any, ack?: boolean, commonType?: ioBroker.CommonType) => Promise<void>;
 
-    $sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
+	$sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
 }
 
 export class Global {
@@ -83,15 +83,14 @@ export class Global {
 
 		let ret = adapter as ExtendedAdapter;
 		if (!ret.__isExtended) {
-			ret.objects.$getObjectList = promisify(adapter.objects.getObjectList, adapter.objects);
 			ret = Object.assign(ret, {
-                $getObject: promisify<ioBroker.Object>(adapter.getObject, adapter),
+				$getObject: promisify<ioBroker.Object>(adapter.getObject, adapter),
 				$setObject: promisify<{ id: string }>(adapter.setObject, adapter),
 				$setObjectNotExists: promisify<{ id: string }>(adapter.setObjectNotExists, adapter),
 				$getAdapterObjects: promisify<{ [id: string]: ioBroker.Object }>(adapter.getAdapterObjects, adapter),
 
-                $getForeignObject: promisify<ioBroker.Object>(adapter.getForeignObject, adapter),
-                $setForeignObject: promisify<{ id: string }>(adapter.setForeignObject, adapter),
+				$getForeignObject: promisify<ioBroker.Object>(adapter.getForeignObject, adapter),
+				$setForeignObject: promisify<{ id: string }>(adapter.setForeignObject, adapter),
 				$setForeignObjectNotExists: promisify<{ id: string }>(adapter.setForeignObjectNotExists, adapter),
 				$getForeignObjects: promisify<{ [id: string]: ioBroker.Object }>(adapter.getForeignObjects, adapter),
 
@@ -100,8 +99,8 @@ export class Global {
 				$createChannel: promisify<{ id: string }>(adapter.createChannel, adapter),
 				$deleteChannel: promisify<void>(adapter.deleteChannel, adapter),
 
-                $getState: promisify<ioBroker.State>(adapter.getState, adapter),
-                $getStates: promisify<{ [id: string]: ioBroker.State }>(adapter.getStates, adapter),
+				$getState: promisify<ioBroker.State>(adapter.getState, adapter),
+				$getStates: promisify<{ [id: string]: ioBroker.State }>(adapter.getStates, adapter),
 				$setState: promisify<string>(adapter.setState, adapter),
 				$setStateChanged: promisify<string>(adapter.setStateChanged, adapter),
 				$createState: promisify<{ id: string }>(adapter.createState, adapter),
@@ -155,12 +154,12 @@ export class Global {
 
 		if (message) {
 			// Farben und Formatierungen
-            for (const [/*key*/, [regex, repl]] of entries(replacements)) {
-                if (typeof repl === "string") {
-                    message = message.replace(regex, repl);
-                } else {
-                    message = message.replace(regex, repl);
-                }
+			for (const [/*key*/, [regex, repl]] of entries(replacements)) {
+				if (typeof repl === "string") {
+					message = message.replace(regex, repl);
+				} else {
+					message = message.replace(regex, repl);
+				}
 			}
 		}
 
@@ -192,8 +191,8 @@ export class Global {
 	public static isdef(value: any): boolean { return value != undefined; }
 
 	// custom subscriptions
-    public static subscribeStates: (pattern: string | RegExp, callback: (id: string, state: ioBroker.State) => void) => string;
-    public static unsubscribeStates: (id: string) => void;
+	public static subscribeStates: (pattern: string | RegExp, callback: (id: string, state: ioBroker.State) => void) => string;
+	public static unsubscribeStates: (id: string) => void;
 	public static subscribeObjects: (pattern: string | RegExp, callback: (id: string, object: ioBroker.Object) => void) => string;
 	public static unsubscribeObjects: (id: string) => void;
 }

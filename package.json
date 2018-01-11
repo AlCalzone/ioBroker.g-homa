@@ -35,7 +35,9 @@
   },
   "main": "build/main.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --exit"
+    "test": "node node_modules/mocha/bin/mocha --exit",
+    "lint:ts": "tslint",
+    "lint": "npm run lint:ts \"src/**/*.ts\""
   },
   "bugs": {
     "url": "https://github.com/AlCalzone/ioBroker.g-homa/issues"

@@ -35,10 +35,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var minimist = require("minimist");
 var gHoma = require("g-homa");
+var minimist = require("minimist");
 var argv = minimist(process.argv.slice(2));
-//console.dir(argv);
 function printUsage() {
     console.log("usage: node setup.js <command> [options]");
     console.log("the supported commands are:");

@@ -1,9 +1,9 @@
 ﻿import * as gHoma from "g-homa";
+import { Plug } from "g-homa/build/server";
 import { ExtendedAdapter, Global as _ } from "./lib/global";
 import { getOwnIpAddresses } from "./lib/network";
 import { entries } from "./lib/object-polyfill";
 import utils from "./lib/utils";
-import { Plug } from "g-homa/build/server";
 
 let server: gHoma.Server;
 let serverAddress: gHoma.ServerAddress;
@@ -169,7 +169,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 						})
 						.once("ready", () => {
 							// start inclusion
-							discovery.beginInclusion(obj.message.psk);
+							discovery.beginInclusion((obj.message as any).psk);
 						})
 						;
 					respond(responses.ACK);
