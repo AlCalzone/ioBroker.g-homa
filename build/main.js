@@ -534,6 +534,7 @@ function extendPlug(plug) {
                                     role: "level.voltage",
                                     read: true,
                                     write: false,
+                                    unit: "V",
                                 },
                                 native: {},
                             }));

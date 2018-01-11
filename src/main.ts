@@ -445,6 +445,7 @@ async function extendPlug(plug: gHoma.Plug) {
 							role: "level.voltage",
 							read: true,
 							write: false,
+							unit: "V",
 						},
 						native: {},
 					},
