@@ -137,6 +137,28 @@ var Global = /** @class */ (function () {
                 });
             });
         };
+        ret.$extendOrCreateObject = function (id, obj) { return __awaiter(_this, void 0, void 0, function () {
+            var existing, _i, _a, prop;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, Global._adapter.$getObject(id)];
+                    case 1:
+                        existing = _b.sent();
+                        if (existing == null) {
+                            return [2 /*return*/, Global._adapter.$setObject(id, obj)];
+                        }
+                        else {
+                            // merge all properties together
+                            for (_i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
+                                prop = _a[_i];
+                                existing[prop] = Object.assign(existing[prop], obj[prop]);
+                            }
+                            return [2 /*return*/, Global.adapter.$setObject(id, existing)];
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        }); };
         return ret;
     };
     /*
@@ -214,8 +236,6 @@ var Global = /** @class */ (function () {
             });
         });
     };
-    // Prüfen auf (un)defined
-    Global.isdef = function (value) { return value != undefined; };
     Global.loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
     Global.severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
     Global._loglevel = Global.loglevels.on;
