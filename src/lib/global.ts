@@ -134,7 +134,11 @@ export class Global {
 			} else {
 				// merge all properties together
 				for (const prop of Object.keys(obj)) {
-					existing[prop] = Object.assign(existing[prop], obj[prop]);
+					if (typeof existing[prop] === "object") {
+						existing[prop] = Object.assign(existing[prop], obj[prop]);
+					} else {
+						existing[prop] = obj[prop];
+					}
 				}
 				return Global.adapter.$setObject(id, existing);
 			}

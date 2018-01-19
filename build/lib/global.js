@@ -151,7 +151,12 @@ var Global = /** @class */ (function () {
                             // merge all properties together
                             for (_i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
                                 prop = _a[_i];
-                                existing[prop] = Object.assign(existing[prop], obj[prop]);
+                                if (typeof existing[prop] === "object") {
+                                    existing[prop] = Object.assign(existing[prop], obj[prop]);
+                                }
+                                else {
+                                    existing[prop] = obj[prop];
+                                }
                             }
                             return [2 /*return*/, Global.adapter.$setObject(id, existing)];
                         }
