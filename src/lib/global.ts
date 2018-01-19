@@ -59,6 +59,7 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
 	$setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
 
 	$createOwnState: (id: string, initialValue: any, ack?: boolean, commonType?: ioBroker.CommonType) => Promise<void>;
+	$extendOrCreateObject: (id: string, obj: ioBroker.Object) => Promise<{id: string}>;
 
 	$sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
 }
@@ -126,6 +127,22 @@ export class Global {
 			});
 			await ret.$setState(id, initialValue, ack);
 		};
+		ret.$extendOrCreateObject = async (id: string, obj: ioBroker.Object): Promise<{id: string}> => {
+			const existing = await Global._adapter.$getObject(id);
+			if (existing == null) {
+				return Global._adapter.$setObject(id, obj);
+			} else {
+				// merge all properties together
+				for (const prop of Object.keys(obj)) {
+					if (typeof existing[prop] === "object") {
+						existing[prop] = Object.assign(existing[prop], obj[prop]);
+					} else {
+						existing[prop] = obj[prop];
+					}
+				}
+				return Global.adapter.$setObject(id, existing);
+			}
+		};
 		return ret;
 	}
 
@@ -186,9 +203,6 @@ export class Global {
 			return objects;
 		}
 	}
-
-	// Prüfen auf (un)defined
-	public static isdef(value: any): boolean { return value != undefined; }
 
 	// custom subscriptions
 	public static subscribeStates: (pattern: string | RegExp, callback: (id: string, state: ioBroker.State) => void) => string;

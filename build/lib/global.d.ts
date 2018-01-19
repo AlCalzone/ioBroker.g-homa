@@ -41,6 +41,9 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
     $getForeignState: (id: string, options?: any) => Promise<ioBroker.State>;
     $setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
     $createOwnState: (id: string, initialValue: any, ack?: boolean, commonType?: ioBroker.CommonType) => Promise<void>;
+    $extendOrCreateObject: (id: string, obj: ioBroker.Object) => Promise<{
+        id: string;
+    }>;
     $sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
 }
 export declare class Global {
@@ -75,7 +78,6 @@ export declare class Global {
     static $$(pattern: string, type: ioBroker.ObjectType, role?: string): Promise<{
         [id: string]: ioBroker.Object;
     }>;
-    static isdef(value: any): boolean;
     static subscribeStates: (pattern: string | RegExp, callback: (id: string, state: ioBroker.State) => void) => string;
     static unsubscribeStates: (id: string) => void;
     static subscribeObjects: (pattern: string | RegExp, callback: (id: string, object: ioBroker.Object) => void) => string;

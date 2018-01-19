@@ -392,7 +392,7 @@ function extendPlug(plug) {
                     prefix = plug.id.toUpperCase();
                     promises = [
                         // Gerät selbst
-                        adapter.$setObjectNotExists("" + prefix, {
+                        adapter.$extendOrCreateObject("" + prefix, {
                             type: "device",
                             common: {
                                 name: "G-Homa WiFi plug " + plug.id.toUpperCase(),
@@ -406,7 +406,7 @@ function extendPlug(plug) {
                             },
                         }),
                         // Info-Channel
-                        adapter.$setObjectNotExists(prefix + ".info", {
+                        adapter.$extendOrCreateObject(prefix + ".info", {
                             type: "channel",
                             common: {
                                 name: "Information über das Gerät",
@@ -414,7 +414,7 @@ function extendPlug(plug) {
                             native: {},
                         }),
                         // Kommunikation
-                        adapter.$setObjectNotExists(prefix + ".info.alive", {
+                        adapter.$extendOrCreateObject(prefix + ".info.alive", {
                             type: "state",
                             common: {
                                 name: "Ob das Gerät erreichbar ist",
@@ -425,7 +425,7 @@ function extendPlug(plug) {
                             },
                             native: {},
                         }),
-                        adapter.$setObjectNotExists(prefix + ".info.lastSeen", {
+                        adapter.$extendOrCreateObject(prefix + ".info.lastSeen", {
                             type: "state",
                             common: {
                                 name: "Wann zuletzt eine Rückmeldung vom Gerät kam",
@@ -436,7 +436,7 @@ function extendPlug(plug) {
                             },
                             native: {},
                         }),
-                        adapter.$setObjectNotExists(prefix + ".info.ip", {
+                        adapter.$extendOrCreateObject(prefix + ".info.ip", {
                             type: "state",
                             common: {
                                 name: "Letzte bekannte IP-Adresse",
@@ -447,7 +447,7 @@ function extendPlug(plug) {
                             },
                             native: {},
                         }),
-                        adapter.$setObjectNotExists(prefix + ".info.port", {
+                        adapter.$extendOrCreateObject(prefix + ".info.port", {
                             type: "state",
                             common: {
                                 name: "Letzter bekannter Port",
@@ -459,7 +459,7 @@ function extendPlug(plug) {
                             native: {},
                         }),
                         // Schalten des Geräts
-                        adapter.$setObjectNotExists(prefix + ".lastSwitchSource", {
+                        adapter.$extendOrCreateObject(prefix + ".lastSwitchSource", {
                             type: "state",
                             common: {
                                 name: "Von wo das Gerät zuletzt geschaltet wurde (remote oder lokal)",
@@ -470,7 +470,7 @@ function extendPlug(plug) {
                             },
                             native: {},
                         }),
-                        adapter.$setObjectNotExists(prefix + ".state", {
+                        adapter.$extendOrCreateObject(prefix + ".state", {
                             type: "state",
                             common: {
                                 name: "Schaltzustand des Geräts",
@@ -485,7 +485,7 @@ function extendPlug(plug) {
                     // Alle benötigten Energiemessungs-Objekte erstellen
                     if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
                         if (plug.energyMeasurement.current != null) {
-                            promises.push(adapter.$setObjectNotExists(prefix + ".current", {
+                            promises.push(adapter.$extendOrCreateObject(prefix + ".current", {
                                 type: "state",
                                 common: {
                                     name: "Stromstärke",
@@ -499,7 +499,7 @@ function extendPlug(plug) {
                             }));
                         }
                         if (plug.energyMeasurement.powerFactor != null) {
-                            promises.push(adapter.$setObjectNotExists(prefix + ".powerFactor", {
+                            promises.push(adapter.$extendOrCreateObject(prefix + ".powerFactor", {
                                 type: "state",
                                 common: {
                                     name: "Wirkfaktor",
@@ -512,7 +512,7 @@ function extendPlug(plug) {
                             }));
                         }
                         if (plug.energyMeasurement.power != null) {
-                            promises.push(adapter.$setObjectNotExists(prefix + ".power", {
+                            promises.push(adapter.$extendOrCreateObject(prefix + ".power", {
                                 type: "state",
                                 common: {
                                     name: "Leistungaufnahme",
@@ -526,7 +526,7 @@ function extendPlug(plug) {
                             }));
                         }
                         if (plug.energyMeasurement.voltage != null) {
-                            promises.push(adapter.$setObjectNotExists(prefix + ".voltage", {
+                            promises.push(adapter.$extendOrCreateObject(prefix + ".voltage", {
                                 type: "state",
                                 common: {
                                     name: "Spannung",

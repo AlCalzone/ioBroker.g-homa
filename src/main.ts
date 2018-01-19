@@ -270,7 +270,7 @@ async function extendPlug(plug: gHoma.Plug) {
 	const prefix = plug.id.toUpperCase();
 	let promises: Promise<any>[] = [
 		// Gerät selbst
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}`, {
 				type: "device",
 				common: {
@@ -286,7 +286,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Info-Channel
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.info`, {
 				type: "channel",
 				common: {
@@ -296,7 +296,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Kommunikation
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.info.alive`, {
 				type: "state",
 				common: {
@@ -309,7 +309,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.info.lastSeen`, {
 				type: "state",
 				common: {
@@ -322,7 +322,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.info.ip`, {
 				type: "state",
 				common: {
@@ -335,7 +335,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.info.port`, {
 				type: "state",
 				common: {
@@ -349,7 +349,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Schalten des Geräts
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.lastSwitchSource`, {
 				type: "state",
 				common: {
@@ -362,7 +362,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$setObjectNotExists(
+		adapter.$extendOrCreateObject(
 			`${prefix}.state`, {
 				type: "state",
 				common: {
@@ -380,7 +380,7 @@ async function extendPlug(plug: gHoma.Plug) {
 	if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
 		if (plug.energyMeasurement.current != null) {
 			promises.push(
-				adapter.$setObjectNotExists(
+				adapter.$extendOrCreateObject(
 					`${prefix}.current`, {
 						type: "state",
 						common: {
@@ -399,7 +399,7 @@ async function extendPlug(plug: gHoma.Plug) {
 
 		if (plug.energyMeasurement.powerFactor != null) {
 			promises.push(
-				adapter.$setObjectNotExists(
+				adapter.$extendOrCreateObject(
 					`${prefix}.powerFactor`, {
 						type: "state",
 						common: {
@@ -417,7 +417,7 @@ async function extendPlug(plug: gHoma.Plug) {
 
 		if (plug.energyMeasurement.power != null) {
 			promises.push(
-				adapter.$setObjectNotExists(
+				adapter.$extendOrCreateObject(
 					`${prefix}.power`, {
 						type: "state",
 						common: {
@@ -436,7 +436,7 @@ async function extendPlug(plug: gHoma.Plug) {
 
 		if (plug.energyMeasurement.voltage != null) {
 			promises.push(
-				adapter.$setObjectNotExists(
+				adapter.$extendOrCreateObject(
 					`${prefix}.voltage`, {
 						type: "state",
 						common: {
