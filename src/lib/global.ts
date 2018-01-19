@@ -142,7 +142,7 @@ export class Global {
 				}
 				return Global.adapter.$setObject(id, existing);
 			}
-		}
+		};
 		return ret;
 	}
 
