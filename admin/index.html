@@ -123,6 +123,20 @@
 					}
 				});
 			});
+			// load network interfaces
+			sendTo(null, "getIPAddresses", null, function (result) {
+				if (result && !result.error) {
+					const select = $(`<select id="networkInterfaceIndex">`);
+					for (let i = 0; i < result.result.length; i++) {
+						$("<option>")
+							.val(i)
+							.text(`${i}: IP = ${result.result[i]}`)
+							.appendTo(select)
+						;
+					}
+					$("#networkInterfaceIndex").replaceWith(select);
+				}
+			})
 			// Signal to admin, that no changes yet
 			onChange(false);
 		}
@@ -275,7 +289,12 @@
 			<input class="value" type="number" id="serverPort" min="1" max="65535" /><br />
 			<label for="wifiKey" class="translate">WiFi key:</label>
 			<input class="value" type="password" id="wifiKey" />
-			<span class="translate">This is neccessary to include new devices into the network</span><br />
+			<span class="translate">This is necessary to include new devices into the network</span><br />
+		</p>
+		<p class="settings-table">
+			<label for="networkInterfaceIndex" class="translate">Network Interface:</label>
+			<input class="value" type="number" min="0" max="10" id="networkInterfaceIndex" />
+			<span class="translate">If you have multiple network interfaces, you can select the correct one</span><br />
 		</p>
 		<p class="translate" style="font-size: 70%">on save adapter restarts with new config immediately</p>
 		

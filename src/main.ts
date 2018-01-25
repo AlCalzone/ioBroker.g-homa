@@ -12,7 +12,8 @@ let manager: gHoma.Manager;
 let discovery: gHoma.Discovery;
 let inclusionOn: boolean = false;
 
-const ownIP = getOwnIpAddresses()[0];
+let options: gHoma.GHomaOptions;
+let ownIP: string;
 
 const plugs: { [id: string]: gHoma.Plug } = {};
 
@@ -28,6 +29,11 @@ let adapter: ExtendedAdapter = utils.adapter({
 		// redirect console output
 		console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
 		console.error = (msg) => adapter.log.error("STDERR > " + msg);
+
+		options = {
+			networkInterfaceIndex: adapter.config.networkInterfaceIndex || 0,
+		};
+		ownIP = getOwnIpAddresses()[options.networkInterfaceIndex];
 
 		// Objekte zurücksetzen
 		await adapter.$setState("info.inclusionOn", false, true);
@@ -157,7 +163,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 					}
 
 					await adapter.$setState("info.inclusionOn", true, true);
-					discovery = new gHoma.Discovery();
+					discovery = new gHoma.Discovery(options);
 					discovery
 						.once("inclusion finished", async (devices) => {
 							await adapter.$setState("info.inclusionOn", false, true);
@@ -174,6 +180,12 @@ let adapter: ExtendedAdapter = utils.adapter({
 						;
 					respond(responses.ACK);
 					return;
+
+				case "getIPAddresses": {
+					const addresses = getOwnIpAddresses();
+					respond(responses.RESULT(addresses));
+					return;
+				}
 				default:
 					respond(responses.ERROR_UNKNOWN_COMMAND);
 					return;
@@ -196,8 +208,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 }) as ExtendedAdapter;
 
 function configurePlugs(ipAddresses?: string[]) {
-	// Manager starten, um
-	manager = (new gHoma.Manager())
+	manager = (new gHoma.Manager(options))
 		.once("ready", async () => {
 			let promises;
 			if (ipAddresses && ipAddresses.length) {

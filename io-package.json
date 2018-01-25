@@ -57,7 +57,8 @@
     },
     "native": {
         "wifiKey": "",
-        "serverPort": 50000
+        "serverPort": 50000,
+        "networkInterfaceIndex": 0
     },
     "objects": [
 
