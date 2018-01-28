@@ -30,13 +30,18 @@ let adapter: ExtendedAdapter = utils.adapter({
 		console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
 		console.error = (msg) => adapter.log.error("STDERR > " + msg);
 
+		// Objekte zurücksetzen
+		await adapter.$setState("info.inclusionOn", false, true);
+
+		// richtige IP-Adresse auswählen
 		options = {
 			networkInterfaceIndex: adapter.config.networkInterfaceIndex || 0,
 		};
 		ownIP = getOwnIpAddresses()[options.networkInterfaceIndex];
-
-		// Objekte zurücksetzen
-		await adapter.$setState("info.inclusionOn", false, true);
+		if (ownIP == null) {
+			adapter.log.error("Invalid network interface configured. Please check your configuration!");
+			return;
+		}
 
 		// bekannte Plugs einlesen
 		await readPlugs();

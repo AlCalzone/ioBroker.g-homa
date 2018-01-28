@@ -47,7 +47,8 @@ var manager;
 // tslint:disable-next-line:prefer-const
 var discovery;
 var inclusionOn = false;
-var ownIP = network_1.getOwnIpAddresses()[0];
+var options;
+var ownIP;
 var plugs = {};
 var adapter = utils_1.default.adapter({
     name: "g-homa",
@@ -67,6 +68,15 @@ var adapter = utils_1.default.adapter({
                 case 1:
                     // Objekte zurücksetzen
                     _a.sent();
+                    // richtige IP-Adresse auswählen
+                    options = {
+                        networkInterfaceIndex: adapter.config.networkInterfaceIndex || 0,
+                    };
+                    ownIP = network_1.getOwnIpAddresses()[options.networkInterfaceIndex];
+                    if (ownIP == null) {
+                        adapter.log.error("Invalid network interface configured. Please check your configuration!");
+                        return [2 /*return*/];
+                    }
                     // bekannte Plugs einlesen
                     return [4 /*yield*/, readPlugs()];
                 case 2:
@@ -205,7 +215,7 @@ var adapter = utils_1.default.adapter({
             }
             return true;
         }
-        var responses, _a;
+        var responses, _a, addresses;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -220,12 +230,13 @@ var adapter = utils_1.default.adapter({
                         RESULT: function (result) { return ({ error: null, result: result }); },
                         ERROR: function (error) { return ({ error: error }); },
                     };
-                    if (!obj) return [3 /*break*/, 4];
+                    if (!obj) return [3 /*break*/, 5];
                     _a = obj.command;
                     switch (_a) {
                         case "inclusion": return [3 /*break*/, 1];
+                        case "getIPAddresses": return [3 /*break*/, 3];
                     }
-                    return [3 /*break*/, 3];
+                    return [3 /*break*/, 4];
                 case 1:
                     if (!requireParams("psk")) {
                         respond(responses.MISSING_PARAMETER("psk"));
@@ -238,7 +249,7 @@ var adapter = utils_1.default.adapter({
                     return [4 /*yield*/, adapter.$setState("info.inclusionOn", true, true)];
                 case 2:
                     _b.sent();
-                    discovery = new gHoma.Discovery();
+                    discovery = new gHoma.Discovery(options);
                     discovery
                         .once("inclusion finished", function (devices) { return __awaiter(_this, void 0, void 0, function () {
                         return __generator(this, function (_a) {
@@ -262,9 +273,16 @@ var adapter = utils_1.default.adapter({
                     respond(responses.ACK);
                     return [2 /*return*/];
                 case 3:
+                    {
+                        addresses = network_1.getOwnIpAddresses();
+                        respond(responses.RESULT(addresses));
+                        return [2 /*return*/];
+                    }
+                    _b.label = 4;
+                case 4:
                     respond(responses.ERROR_UNKNOWN_COMMAND);
                     return [2 /*return*/];
-                case 4: return [2 /*return*/];
+                case 5: return [2 /*return*/];
             }
         });
     }); },
@@ -282,8 +300,7 @@ var adapter = utils_1.default.adapter({
 });
 function configurePlugs(ipAddresses) {
     var _this = this;
-    // Manager starten, um
-    manager = (new gHoma.Manager())
+    manager = (new gHoma.Manager(options))
         .once("ready", function () { return __awaiter(_this, void 0, void 0, function () {
         var promises, activePlugs;
         return __generator(this, function (_a) {

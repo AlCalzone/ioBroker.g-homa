@@ -42,10 +42,10 @@ function printUsage() {
     console.log("usage: node setup.js <command> [options]");
     console.log("the supported commands are:");
     console.log("");
-    console.log("  include --psk=<wifi key>");
+    console.log("  include [--interface=<network interface index>] --psk=<wifi key>");
     console.log("include new plugs into the WiFi network");
     console.log("");
-    console.log("  configure [--server=<server ip> --port=<server port>] [--ignore <MAC>] [--restore <MAC>]");
+    console.log("  configure [--interface=<network interface index>] [--server=<server ip> --port=<server port>] [--ignore <MAC>] [--restore <MAC>]");
     console.log("configures all plugs to communicate with the given server.");
     console.log("Plugs can be ignored (--ignore) or restored (--restore) to the original settings.");
     console.log("By writing those arguments multiple times, more plugs can be ignored or restored");
@@ -63,11 +63,18 @@ function ensureArray(arrOrString) {
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var _this = this;
-        var discovery_1, manager_1, ignoredMacs_1, restoredMacs_1;
+        var options, index, discovery_1, manager_1, ignoredMacs_1, restoredMacs_1;
         return __generator(this, function (_a) {
             // make sure we have exactly one command
             if (argv._.length !== 1)
                 return [2 /*return*/, fail()];
+            options = null;
+            if ("interface" in argv) {
+                index = parseInt(argv.interface, 10);
+                if (!Number.isNaN(index) && index >= 0) {
+                    options = { networkInterfaceIndex: index };
+                }
+            }
             switch (argv._[0]) {
                 case "include":
                     // make sure we have a psk
@@ -75,7 +82,7 @@ function main() {
                         return [2 /*return*/, fail()];
                     console.log("starting inclusion...");
                     console.log("Please put your plug into inclusion mode (LED flashing fast)");
-                    discovery_1 = new gHoma.Discovery();
+                    discovery_1 = new gHoma.Discovery(options);
                     discovery_1
                         .on("inclusion finished", function (devices) {
                         // do something with included devices
@@ -100,7 +107,7 @@ function main() {
                     });
                     break;
                 case "configure":
-                    manager_1 = new gHoma.Manager();
+                    manager_1 = new gHoma.Manager(options);
                     ignoredMacs_1 = ensureArray(argv.ignore || []);
                     restoredMacs_1 = ensureArray(argv.restore || []);
                     manager_1
