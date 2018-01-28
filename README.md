@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+### 0.3.0 (2018-01-28)
+* (AlCalzone) Support for multiple network interfaces
+
 ### 0.2.0 (2018-01-11)
 * (AlCalzone) Experimental support for plugs with energy measurement
 
