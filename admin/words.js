@@ -12,7 +12,7 @@ systemDictionary = {
 	"WiFi key:": {
 		"de": "WLAN-Passwort:"
 	},
-	"This is neccessary to include new devices into the network": {
+	"This is necessary to include new devices into the network": {
 		"de": "Dies wird benötigt, um neue Geräte ins Netzwerk einzubinden"
 	},
 	"add device": {
@@ -23,6 +23,12 @@ systemDictionary = {
 	},
 	"Please enter the WiFi key!": {
 		"de": "Bitte den WLAN-Schlüssel eingeben!"
+	},
+	"Network Interface:": {
+		"de": "Netzwerkschnittstelle:"
+	},
+	"If you have multiple network interfaces, you can select the correct one": {
+		"de": "Wenn mehrere Netzwerkschnittstellen vorhanden sind, hier die richtige auswählen"
 	},
 	"on save adapter restarts with new config immediately": {
 		"de": "Beim Speichern von Einstellungen wird der Adapter sofort neu gestartet.",
