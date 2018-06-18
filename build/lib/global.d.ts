@@ -62,7 +62,7 @@ export declare class Global {
     private static _loglevel;
     static loglevel: number;
     static extend(adapter: ioBroker.Adapter): ExtendedAdapter;
-    static log(message: string, {level, severity}?: {
+    static log(message: string, { level, severity }?: {
         level?: number;
         severity?: number;
     }): void;

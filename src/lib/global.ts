@@ -59,7 +59,7 @@ export interface ExtendedAdapter extends ioBroker.Adapter {
 	$setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
 
 	$createOwnState: (id: string, initialValue: any, ack?: boolean, commonType?: ioBroker.CommonType) => Promise<void>;
-	$extendOrCreateObject: (id: string, obj: ioBroker.Object) => Promise<{id: string}>;
+	$extendOrCreateObject: (id: string, obj: ioBroker.Object) => Promise<{ id: string }>;
 
 	$sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
 }
@@ -127,12 +127,13 @@ export class Global {
 			});
 			await ret.$setState(id, initialValue, ack);
 		};
-		ret.$extendOrCreateObject = async (id: string, obj: ioBroker.Object): Promise<{id: string}> => {
+		ret.$extendOrCreateObject = async (id: string, obj: ioBroker.Object): Promise<{ id: string }> => {
 			const existing = await Global._adapter.$getObject(id);
 			if (existing == null) {
 				return Global._adapter.$setObject(id, obj);
 			} else {
 				// merge all properties together
+				const oldObjAsString = JSON.stringify(existing);
 				for (const prop of Object.keys(obj)) {
 					if (typeof existing[prop] === "object") {
 						existing[prop] = Object.assign(existing[prop], obj[prop]);
@@ -140,7 +141,13 @@ export class Global {
 						existing[prop] = obj[prop];
 					}
 				}
-				return Global.adapter.$setObject(id, existing);
+				const newObjAsString = JSON.stringify(existing);
+				if (oldObjAsString !== newObjAsString) {
+					return Global.adapter.$setObject(id, existing);
+				} else {
+					// nothing to update
+					return { id };
+				}
 			}
 		};
 		return ret;
@@ -151,7 +158,7 @@ export class Global {
 		**fett**, ##kursiv##, __unterstrichen__, ~~durchgestrichen~~
 		schwarz{{farbe|bunt}}schwarz, {{farbe}}bunt
 	*/
-	public static log(message: string, {level = Global.loglevels.on, severity = Global.severity.normal} = {}) {
+	public static log(message: string, { level = Global.loglevels.on, severity = Global.severity.normal } = {}) {
 		if (!Global.adapter) return;
 		if (level < Global._loglevel) return;
 
