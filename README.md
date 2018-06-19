@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+### 0.3.1 (2018-06-19)
+* (AlCalzone) Reduce rewriting of state objects. This limits log spam when a history adapter is active on this adapter's states.
+
 ### 0.3.0 (2018-01-28)
 * (AlCalzone) Support for multiple network interfaces
 

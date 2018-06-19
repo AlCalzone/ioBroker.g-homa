@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "news": {
+            "0.3.1": {
+                "en": "Remove log spam in combination with a history adapter",
+                "de": "Log-Spam in Kombination mit History-Adapter behoben"
+            },
             "0.3.0": {
                 "en": "Support for multiple network interfaces",
                 "de": "Unterstützung für mehrere Netzwerkschnittstellen"
