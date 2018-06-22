@@ -75,9 +75,9 @@ let adapter: ExtendedAdapter = utils.adapter({
   state: ${plug.state ? "on" : "off"}
   switched from: ${plug.lastSwitchSource}`);
 				const {
-					current, 
-					power, 
-					powerFactor, 
+					current,
+					power,
+					powerFactor,
 					voltage,
 				} = plug.energyMeasurement;
 				if (voltage != null) adapter.log.debug(`  voltage: ${voltage} V`);
