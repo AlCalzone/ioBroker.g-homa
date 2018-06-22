@@ -62,18 +62,34 @@ let adapter: ExtendedAdapter = utils.adapter({
 		server
 			.on("server closed", () => {
 				adapter.setState("info.connection", false, true);
+				adapter.log.info("The local server was shut down");
 			})
 			.on("plug added", (id: string) => {
 				// vorerst nichts zu tun
+				adapter.log.info(`Added plug with ID ${id}`);
 			})
 			.on("plug updated", (plug: gHoma.Plug) => {
 				// Objekt merken
 				plugs[plug.id] = plug;
+				adapter.log.debug(`Got updated info for Plug ${plug.id}:
+  state: ${plug.state ? "on" : "off"}
+  switched from: ${plug.lastSwitchSource}`);
+				const {
+					current, 
+					power, 
+					powerFactor, 
+					voltage,
+				} = plug.energyMeasurement;
+				if (voltage != null) adapter.log.debug(`  voltage: ${voltage} V`);
+				if (current != null) adapter.log.debug(`  Current: ${current} A`);
+				if (power != null) adapter.log.debug(`  Power: ${power} W`);
+				if (powerFactor != null) adapter.log.debug(`  Power factor: ${powerFactor}`);
 				// und nach ioBroker exportieren
 				extendPlug(plug);
 			})
 			.on("plug dead", async (id: string) => {
 				if (plugs[id]) plugs[id].online = false;
+				adapter.log.info(`Plug ${id} is now dead`);
 
 				const prefix = id.toUpperCase();
 				const iobID = `${prefix}.info.alive`;
@@ -84,6 +100,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 			})
 			.on("plug alive", async (id: string) => {
 				if (plugs[id]) plugs[id].online = true;
+				adapter.log.info(`Plug ${id} is now alive`);
 
 				const prefix = id.toUpperCase();
 				const iobID = `${prefix}.info.alive`;
@@ -230,7 +247,7 @@ function configurePlugs(ipAddresses?: string[]) {
 			await Promise.all(promises);
 			manager.close();
 		})
-	;
+		;
 }
 
 async function readPlugs(): Promise<void> {

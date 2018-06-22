@@ -100,13 +100,25 @@ var adapter = utils_1.default.adapter({
                     server
                         .on("server closed", function () {
                         adapter.setState("info.connection", false, true);
+                        adapter.log.info("The local server was shut down");
                     })
                         .on("plug added", function (id) {
                         // vorerst nichts zu tun
+                        adapter.log.info("Added plug with ID " + id);
                     })
                         .on("plug updated", function (plug) {
                         // Objekt merken
                         plugs[plug.id] = plug;
+                        adapter.log.debug("Got updated info for Plug " + plug.id + ":\n  state: " + (plug.state ? "on" : "off") + "\n  switched from: " + plug.lastSwitchSource);
+                        var _a = plug.energyMeasurement, current = _a.current, power = _a.power, powerFactor = _a.powerFactor, voltage = _a.voltage;
+                        if (voltage != null)
+                            adapter.log.debug("  voltage: " + voltage + " V");
+                        if (current != null)
+                            adapter.log.debug("  Current: " + current + " A");
+                        if (power != null)
+                            adapter.log.debug("  Power: " + power + " W");
+                        if (powerFactor != null)
+                            adapter.log.debug("  Power factor: " + powerFactor);
                         // und nach ioBroker exportieren
                         extendPlug(plug);
                     })
@@ -117,6 +129,7 @@ var adapter = utils_1.default.adapter({
                                 case 0:
                                     if (plugs[id])
                                         plugs[id].online = false;
+                                    adapter.log.info("Plug " + id + " is now dead");
                                     prefix = id.toUpperCase();
                                     iobID = prefix + ".info.alive";
                                     return [4 /*yield*/, adapter.$getState(iobID)];
@@ -138,6 +151,7 @@ var adapter = utils_1.default.adapter({
                                 case 0:
                                     if (plugs[id])
                                         plugs[id].online = true;
+                                    adapter.log.info("Plug " + id + " is now alive");
                                     prefix = id.toUpperCase();
                                     iobID = prefix + ".info.alive";
                                     return [4 /*yield*/, adapter.$getState(iobID)];
