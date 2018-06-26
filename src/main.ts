@@ -73,14 +73,15 @@ let adapter: ExtendedAdapter = utils.adapter({
 				plugs[plug.id] = plug;
 				adapter.log.debug(`Got updated info for Plug ${plug.id}:
   state: ${plug.state ? "on" : "off"}
-  switched from: ${plug.lastSwitchSource}`);
+  switched from: ${plug.lastSwitchSource}
+  type: ${plug.type}`);
 				const {
 					current,
 					power,
 					powerFactor,
 					voltage,
 				} = plug.energyMeasurement;
-				if (voltage != null) adapter.log.debug(`  voltage: ${voltage} V`);
+				if (voltage != null) adapter.log.debug(`  Voltage: ${voltage} V`);
 				if (current != null) adapter.log.debug(`  Current: ${current} A`);
 				if (power != null) adapter.log.debug(`  Power: ${power} W`);
 				if (powerFactor != null) adapter.log.debug(`  Power factor: ${powerFactor}`);
@@ -410,7 +411,9 @@ async function extendPlug(plug: gHoma.Plug) {
 		),
 	];
 	// Alle benötigten Energiemessungs-Objekte erstellen
+	adapter.log.debug(`extendPlug: type = ${plug.type}, energyMeasurement != null: ${plug.energyMeasurement != null}`);
 	if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
+		adapter.log.debug(`current != null: ${plug.energyMeasurement.current != null}`);
 		if (plug.energyMeasurement.current != null) {
 			promises.push(
 				adapter.$extendOrCreateObject(
@@ -430,6 +433,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			);
 		}
 
+		adapter.log.debug(`powerFactor != null: ${plug.energyMeasurement.powerFactor != null}`);
 		if (plug.energyMeasurement.powerFactor != null) {
 			promises.push(
 				adapter.$extendOrCreateObject(
@@ -448,6 +452,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			);
 		}
 
+		adapter.log.debug(`power != null: ${plug.energyMeasurement.power != null}`);
 		if (plug.energyMeasurement.power != null) {
 			promises.push(
 				adapter.$extendOrCreateObject(
@@ -467,6 +472,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			);
 		}
 
+		adapter.log.debug(`voltage != null: ${plug.energyMeasurement.voltage != null}`);
 		if (plug.energyMeasurement.voltage != null) {
 			promises.push(
 				adapter.$extendOrCreateObject(
@@ -501,6 +507,7 @@ async function extendPlug(plug: gHoma.Plug) {
 	];
 	// alle vorhandenen Energiemessungs-Werte speichern
 	for (const measurement of ["voltage", "current", "power", "powerFactor"]) {
+		adapter.log.debug(`${measurement} in plug.energyMeasurement => ${measurement in plug.energyMeasurement}`);
 		if (measurement in plug.energyMeasurement) {
 			promises.push(adapter.$setState(`${prefix}.${measurement}`, plug.energyMeasurement[measurement], true));
 		}

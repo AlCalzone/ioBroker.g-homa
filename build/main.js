@@ -109,10 +109,10 @@ var adapter = utils_1.default.adapter({
                         .on("plug updated", function (plug) {
                         // Objekt merken
                         plugs[plug.id] = plug;
-                        adapter.log.debug("Got updated info for Plug " + plug.id + ":\n  state: " + (plug.state ? "on" : "off") + "\n  switched from: " + plug.lastSwitchSource);
+                        adapter.log.debug("Got updated info for Plug " + plug.id + ":\n  state: " + (plug.state ? "on" : "off") + "\n  switched from: " + plug.lastSwitchSource + "\n  type: " + plug.type);
                         var _a = plug.energyMeasurement, current = _a.current, power = _a.power, powerFactor = _a.powerFactor, voltage = _a.voltage;
                         if (voltage != null)
-                            adapter.log.debug("  voltage: " + voltage + " V");
+                            adapter.log.debug("  Voltage: " + voltage + " V");
                         if (current != null)
                             adapter.log.debug("  Current: " + current + " A");
                         if (power != null)
@@ -514,7 +514,9 @@ function extendPlug(plug) {
                         }),
                     ];
                     // Alle benötigten Energiemessungs-Objekte erstellen
+                    adapter.log.debug("extendPlug: type = " + plug.type + ", energyMeasurement != null: " + (plug.energyMeasurement != null));
                     if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
+                        adapter.log.debug("current != null: " + (plug.energyMeasurement.current != null));
                         if (plug.energyMeasurement.current != null) {
                             promises.push(adapter.$extendOrCreateObject(prefix + ".current", {
                                 type: "state",
@@ -529,6 +531,7 @@ function extendPlug(plug) {
                                 native: {},
                             }));
                         }
+                        adapter.log.debug("powerFactor != null: " + (plug.energyMeasurement.powerFactor != null));
                         if (plug.energyMeasurement.powerFactor != null) {
                             promises.push(adapter.$extendOrCreateObject(prefix + ".powerFactor", {
                                 type: "state",
@@ -542,6 +545,7 @@ function extendPlug(plug) {
                                 native: {},
                             }));
                         }
+                        adapter.log.debug("power != null: " + (plug.energyMeasurement.power != null));
                         if (plug.energyMeasurement.power != null) {
                             promises.push(adapter.$extendOrCreateObject(prefix + ".power", {
                                 type: "state",
@@ -556,6 +560,7 @@ function extendPlug(plug) {
                                 native: {},
                             }));
                         }
+                        adapter.log.debug("voltage != null: " + (plug.energyMeasurement.voltage != null));
                         if (plug.energyMeasurement.voltage != null) {
                             promises.push(adapter.$extendOrCreateObject(prefix + ".voltage", {
                                 type: "state",
@@ -588,6 +593,7 @@ function extendPlug(plug) {
                     // alle vorhandenen Energiemessungs-Werte speichern
                     for (_i = 0, _a = ["voltage", "current", "power", "powerFactor"]; _i < _a.length; _i++) {
                         measurement = _a[_i];
+                        adapter.log.debug(measurement + " in plug.energyMeasurement => " + (measurement in plug.energyMeasurement));
                         if (measurement in plug.energyMeasurement) {
                             promises.push(adapter.$setState(prefix + "." + measurement, plug.energyMeasurement[measurement], true));
                         }
