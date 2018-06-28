@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+### 0.3.2 (2018-06-28)
+* (AlCalzone) Check the existence of energy measurements instead of the plug type to determine if objects should be created.
+
 ### 0.3.1 (2018-06-19)
 * (AlCalzone) Reduce rewriting of state objects. This limits log spam when a history adapter is active on this adapter's states.
 

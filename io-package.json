@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "news": {
+            "0.3.2": {
+                "en": "Less strict check for the creation of energy measurement states.",
+                "de": "Überprüfung für die Erstellung von Energiemessungs-States ist weniger strikt."
+            },
             "0.3.1": {
                 "en": "Remove log spam in combination with a history adapter",
                 "de": "Log-Spam in Kombination mit History-Adapter behoben"
