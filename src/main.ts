@@ -412,7 +412,7 @@ async function extendPlug(plug: gHoma.Plug) {
 	];
 	// Alle benötigten Energiemessungs-Objekte erstellen
 	adapter.log.debug(`extendPlug: type = ${plug.type}, energyMeasurement != null: ${plug.energyMeasurement != null}`);
-	if (plug.type === "withEnergyMeasurement" && plug.energyMeasurement != null) {
+	if (/*plug.type === "withEnergyMeasurement" &&*/ plug.energyMeasurement != null) {
 		adapter.log.debug(`current != null: ${plug.energyMeasurement.current != null}`);
 		if (plug.energyMeasurement.current != null) {
 			promises.push(
