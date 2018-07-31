@@ -12,6 +12,9 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 
 ## Changelog
 
+### 0.4.0 (2018-07-31)
+* (AlCalzone) Avoid overwriting the name of existing objects
+
 ### 0.3.2 (2018-06-28)
 * (AlCalzone) Check the existence of energy measurements instead of the plug type to determine if objects should be created.
 
