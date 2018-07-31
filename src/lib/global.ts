@@ -136,7 +136,13 @@ export class Global {
 				const oldObjAsString = JSON.stringify(existing);
 				for (const prop of Object.keys(obj)) {
 					if (typeof existing[prop] === "object") {
-						existing[prop] = Object.assign(existing[prop], obj[prop]);
+						if (prop === "common") {
+							// we prefer to keep the existing properties
+							existing[prop] = Object.assign({}, obj[prop], existing[prop]);
+						} else {
+							// overwrite with new ones as the firmware or similiar might actually have changed
+							existing[prop] = Object.assign({}, existing[prop], obj[prop]);
+						}
 					} else {
 						existing[prop] = obj[prop];
 					}

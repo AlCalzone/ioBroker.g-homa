@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.3.2",
+        "version": "0.4.0",
         "news": {
+            "0.4.0": {
+                "en": "Avoid overwriting the name of existing objects.",
+                "de": "Überschreiben des Namens existierender Objekte wird vermieden."
+            },
             "0.3.2": {
                 "en": "Less strict check for the creation of energy measurement states.",
                 "de": "Überprüfung für die Erstellung von Energiemessungs-States ist weniger strikt."
