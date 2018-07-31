@@ -6,3 +6,8 @@
 /obj
 iobroker.*.tgz
 Thumbs.db
+/.nyc_output
+/coverage
+# No clue where these come from:
+/etc
+/tmp

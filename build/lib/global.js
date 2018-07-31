@@ -152,7 +152,14 @@ var Global = /** @class */ (function () {
                             for (_i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
                                 prop = _a[_i];
                                 if (typeof existing[prop] === "object") {
-                                    existing[prop] = Object.assign(existing[prop], obj[prop]);
+                                    if (prop === "common") {
+                                        // we prefer to keep the existing properties
+                                        existing[prop] = Object.assign({}, obj[prop], existing[prop]);
+                                    }
+                                    else {
+                                        // overwrite with new ones as the firmware or similiar might actually have changed
+                                        existing[prop] = Object.assign({}, existing[prop], obj[prop]);
+                                    }
                                 }
                                 else {
                                     existing[prop] = obj[prop];

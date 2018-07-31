@@ -1,6 +1,6 @@
 {
   "name": "iobroker.g-homa",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "ioBroker adapter to control G-Homa WiFi plugs",
   "author": {
     "name": "AlCalzone",
@@ -30,6 +30,7 @@
     "chai": "^4.1.2",
     "mocha": "^4.1.0",
     "nyc": "^11.4.1",
+    "rimraf": "^2.6.2",
     "source-map-support": "^0.5.0",
     "ts-node": "^4.1.0",
     "tslint": "^5.9.1",
@@ -37,6 +38,9 @@
   },
   "main": "build/main.js",
   "scripts": {
+    "build": "tsc",
+    "prebuild": "rimraf ./build",
+    "watch": "tsc --watch",
     "lint:ts": "tslint",
     "lint": "npm run lint:ts \"src/**/*.ts\"",
     "test:js": "node node_modules/mocha/bin/mocha test/test*.js --exit",
