@@ -23,225 +23,236 @@ let manager: gHoma.Manager;
 let discovery: gHoma.Discovery;
 let inclusionOn: boolean = false;
 
-let options: gHoma.GHomaOptions;
+let gHomaOptions: gHoma.GHomaOptions;
 let ownIP: string;
 
 const plugs: { [id: string]: gHoma.Plug } = {};
 
-const adapter: ioBroker.Adapter = utils.adapter({
-	name: "g-homa",
+let adapter: ioBroker.Adapter;
 
-	ready: async () => {
+/**
+ * Starts the adapter instance
+ */
+function startAdapter(options: Partial<ioBroker.AdapterOptions> = {}) {
+	// Create the adapter and define its methods
+	return adapter = utils.adapter({
+		// Default options
+		...options,
+		// custom options
+		name: "g-homa",
 
-		// Adapter-Instanz global machen
-		_.adapter = adapter;
+		ready: async () => {
 
-		// redirect console output
-		console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
-		console.error = (msg) => adapter.log.error("STDERR > " + msg);
+			// Adapter-Instanz global machen
+			_.adapter = adapter;
 
-		// Objekte zurücksetzen
-		await adapter.setStateAsync("info.inclusionOn", false, true);
+			// redirect console output
+			console.log = (msg) => adapter.log.debug("STDOUT > " + msg);
+			console.error = (msg) => adapter.log.error("STDERR > " + msg);
 
-		// richtige IP-Adresse auswählen
-		options = {
-			networkInterfaceIndex: adapter.config.networkInterfaceIndex || 0,
-		};
-		ownIP = getOwnIpAddresses()[options.networkInterfaceIndex];
-		if (ownIP == null) {
-			adapter.log.error("Invalid network interface configured. Please check your configuration!");
-			return;
-		}
+			// Objekte zurücksetzen
+			await adapter.setStateAsync("info.inclusionOn", false, true);
 
-		// bekannte Plugs einlesen
-		await readPlugs();
+			// richtige IP-Adresse auswählen
+			gHomaOptions = {
+				networkInterfaceIndex: adapter.config.networkInterfaceIndex || 0,
+			};
+			ownIP = getOwnIpAddresses()[gHomaOptions.networkInterfaceIndex];
+			if (ownIP == null) {
+				adapter.log.error("Invalid network interface configured. Please check your configuration!");
+				return;
+			}
 
-		// Server zuerst starten, damit wir den Port kennen
-		adapter.setState("info.connection", false, true);
-		adapter.log.info("starting server...");
-		server = new gHoma.Server(adapter.config.serverPort);
-		server.once("server started", async (address: gHoma.ServerAddress) => {
-			serverAddress = address;
-			adapter.log.info(`server started on port ${address.port}`);
-			adapter.setState("info.connection", true, true);
+			// bekannte Plugs einlesen
+			await readPlugs();
 
-			// aktive Plugs konfigurieren
-			configurePlugs();
-		});
-		// auf Events des Servers lauschen
-		server
-			.on("server closed", () => {
-				adapter.setState("info.connection", false, true);
-				adapter.log.info("The local server was shut down");
-			})
-			.on("plug added", (id: string) => {
-				// vorerst nichts zu tun
-				adapter.log.info(`Added plug with ID ${id}`);
-			})
-			.on("plug updated", (plug: gHoma.Plug) => {
-				// Objekt merken
-				plugs[plug.id] = plug;
-				adapter.log.debug(`Got updated info for Plug ${plug.id}:
+			// Server zuerst starten, damit wir den Port kennen
+			adapter.setState("info.connection", false, true);
+			adapter.log.info("starting server...");
+			server = new gHoma.Server(adapter.config.serverPort);
+			server.once("server started", async (address: gHoma.ServerAddress) => {
+				serverAddress = address;
+				adapter.log.info(`server started on port ${address.port}`);
+				adapter.setState("info.connection", true, true);
+
+				// aktive Plugs konfigurieren
+				configurePlugs();
+			});
+			// auf Events des Servers lauschen
+			server
+				.on("server closed", () => {
+					adapter.setState("info.connection", false, true);
+					adapter.log.info("The local server was shut down");
+				})
+				.on("plug added", (id: string) => {
+					// vorerst nichts zu tun
+					adapter.log.info(`Added plug with ID ${id}`);
+				})
+				.on("plug updated", (plug: gHoma.Plug) => {
+					// Objekt merken
+					plugs[plug.id] = plug;
+					adapter.log.debug(`Got updated info for Plug ${plug.id}:
   state: ${plug.state ? "on" : "off"}
   switched from: ${plug.lastSwitchSource}
   type: ${plug.type}`);
-				const {
-					current,
-					power,
-					powerFactor,
-					voltage,
-				} = plug.energyMeasurement;
-				if (voltage != null) adapter.log.debug(`  Voltage: ${voltage} V`);
-				if (current != null) adapter.log.debug(`  Current: ${current} A`);
-				if (power != null) adapter.log.debug(`  Power: ${power} W`);
-				if (powerFactor != null) adapter.log.debug(`  Power factor: ${powerFactor}`);
-				// und nach ioBroker exportieren
-				extendPlug(plug);
-			})
-			.on("plug dead", async (id: string) => {
-				if (plugs[id]) plugs[id].online = false;
-				adapter.log.info(`Plug ${id} is now dead`);
+					const {
+						current,
+						power,
+						powerFactor,
+						voltage,
+					} = plug.energyMeasurement;
+					if (voltage != null) adapter.log.debug(`  Voltage: ${voltage} V`);
+					if (current != null) adapter.log.debug(`  Current: ${current} A`);
+					if (power != null) adapter.log.debug(`  Power: ${power} W`);
+					if (powerFactor != null) adapter.log.debug(`  Power factor: ${powerFactor}`);
+					// und nach ioBroker exportieren
+					extendPlug(plug);
+				})
+				.on("plug dead", async (id: string) => {
+					if (plugs[id]) plugs[id].online = false;
+					adapter.log.info(`Plug ${id} is now dead`);
 
-				const prefix = id.toUpperCase();
-				const iobID = `${prefix}.info.alive`;
-				const state = await adapter.getStateAsync(iobID);
-				if (state && state.val != null) {
-					await adapter.setStateAsync(iobID, false, true);
+					const prefix = id.toUpperCase();
+					const iobID = `${prefix}.info.alive`;
+					const state = await adapter.getStateAsync(iobID);
+					if (state && state.val != null) {
+						await adapter.setStateAsync(iobID, false, true);
+					}
+				})
+				.on("plug alive", async (id: string) => {
+					if (plugs[id]) plugs[id].online = true;
+					adapter.log.info(`Plug ${id} is now alive`);
+
+					const prefix = id.toUpperCase();
+					const iobID = `${prefix}.info.alive`;
+					const state = await adapter.getStateAsync(iobID);
+					if (state && state.val != null) {
+						await adapter.setStateAsync(iobID, true, true);
+					}
+				})
+				;
+
+			// watch states and objects
+			adapter.subscribeStates("*");
+			adapter.subscribeObjects("*");
+
+		},
+
+		// is called if a subscribed object changes
+		objectChange: (id, obj) => {
+			// TODO: do we need this?
+		},
+
+		// is called if a subscribed state changes
+		stateChange: async (id, state) => {
+			if (state && !state.ack) {
+				if (id.endsWith(".state")) {
+					// Switch soll geschaltet werden
+					// Device finden
+					const matches = /([0-9A-Fa-f]{6})\.state$/.exec(id);
+					if (matches && matches.length) {
+						const switchId = matches[1];
+						const obj = await adapter.getObjectAsync(switchId.toUpperCase());
+						if (obj && obj.native.id) {
+							server.switchPlug(obj.native.id, state.val);
+						}
+					}
+				} else if (id.match(/info\.inclusionOn/)) {
+					inclusionOn = state.val;
 				}
-			})
-			.on("plug alive", async (id: string) => {
-				if (plugs[id]) plugs[id].online = true;
-				adapter.log.info(`Plug ${id} is now alive`);
+			}
+		},
 
-				const prefix = id.toUpperCase();
-				const iobID = `${prefix}.info.alive`;
-				const state = await adapter.getStateAsync(iobID);
-				if (state && state.val != null) {
-					await adapter.setStateAsync(iobID, true, true);
-				}
-			})
-			;
-
-		// watch states and objects
-		adapter.subscribeStates("*");
-		adapter.subscribeObjects("*");
-
-	},
-
-	// is called if a subscribed object changes
-	objectChange: (id, obj) => {
-		// TODO: do we need this?
-	},
-
-	// is called if a subscribed state changes
-	stateChange: async (id, state) => {
-		if (state && !state.ack) {
-			if (id.endsWith(".state")) {
-				// Switch soll geschaltet werden
-				// Device finden
-				const matches = /([0-9A-Fa-f]{6})\.state$/.exec(id);
-				if (matches && matches.length) {
-					const switchId = matches[1];
-					const obj = await adapter.getObjectAsync(switchId.toUpperCase());
-					if (obj && obj.native.id) {
-						server.switchPlug(obj.native.id, state.val);
+		message: async (obj) => {
+			// responds to the adapter that sent the original message
+			function respond(response) {
+				if (obj.callback) adapter.sendTo(obj.from, obj.command, response, obj.callback);
+			}
+			// some predefined responses so we only have to define them once
+			const responses = {
+				ACK: { error: null },
+				OK: { error: null, result: "ok" },
+				ERROR_UNKNOWN_COMMAND: { error: "Unknown command!" },
+				MISSING_PARAMETER: (paramName) => {
+					return { error: 'missing parameter "' + paramName + '"!' };
+				},
+				COMMAND_RUNNING: { error: "command running" },
+				RESULT: (result) => ({ error: null, result }),
+				ERROR: (error: string) => ({ error }),
+			};
+			// make required parameters easier
+			function requireParams(...params: string[]) {
+				if (!(params && params.length)) return true;
+				for (const param of params) {
+					if (!(obj.message && obj.message.hasOwnProperty(param))) {
+						respond(responses.MISSING_PARAMETER(param));
+						return false;
 					}
 				}
-			} else if (id.match(/info\.inclusionOn/)) {
-				inclusionOn = state.val;
+				return true;
 			}
-		}
-	},
 
-	message: async (obj) => {
-		// responds to the adapter that sent the original message
-		function respond(response) {
-			if (obj.callback) adapter.sendTo(obj.from, obj.command, response, obj.callback);
-		}
-		// some predefined responses so we only have to define them once
-		const responses = {
-			ACK: { error: null },
-			OK: { error: null, result: "ok" },
-			ERROR_UNKNOWN_COMMAND: { error: "Unknown command!" },
-			MISSING_PARAMETER: (paramName) => {
-				return { error: 'missing parameter "' + paramName + '"!' };
-			},
-			COMMAND_RUNNING: { error: "command running" },
-			RESULT: (result) => ({ error: null, result }),
-			ERROR: (error: string) => ({ error }),
-		};
-		// make required parameters easier
-		function requireParams(...params: string[]) {
-			if (!(params && params.length)) return true;
-			for (const param of params) {
-				if (!(obj.message && obj.message.hasOwnProperty(param))) {
-					respond(responses.MISSING_PARAMETER(param));
-					return false;
-				}
-			}
-			return true;
-		}
+			// handle the message
+			if (obj) {
+				switch (obj.command) {
+					case "inclusion":
+						if (!requireParams("psk")) {
+							respond(responses.MISSING_PARAMETER("psk"));
+							return;
+						}
+						if (inclusionOn) {
+							respond(responses.COMMAND_RUNNING);
+							return;
+						}
 
-		// handle the message
-		if (obj) {
-			switch (obj.command) {
-				case "inclusion":
-					if (!requireParams("psk")) {
-						respond(responses.MISSING_PARAMETER("psk"));
+						await adapter.setStateAsync("info.inclusionOn", true, true);
+						discovery = new gHoma.Discovery(gHomaOptions);
+						discovery
+							.once("inclusion finished", async (devices) => {
+								await adapter.setStateAsync("info.inclusionOn", false, true);
+								// do something with included devices
+								discovery.close();
+								if (devices && devices.length > 0) {
+									configurePlugs(devices.map(d => d.ip));
+								}
+							})
+							.once("ready", () => {
+								// start inclusion
+								discovery.beginInclusion((obj.message as any).psk);
+							})
+							;
+						respond(responses.ACK);
+						return;
+
+					case "getIPAddresses": {
+						const addresses = getOwnIpAddresses();
+						respond(responses.RESULT(addresses));
 						return;
 					}
-					if (inclusionOn) {
-						respond(responses.COMMAND_RUNNING);
+					default:
+						respond(responses.ERROR_UNKNOWN_COMMAND);
 						return;
-					}
-
-					await adapter.setStateAsync("info.inclusionOn", true, true);
-					discovery = new gHoma.Discovery(options);
-					discovery
-						.once("inclusion finished", async (devices) => {
-							await adapter.setStateAsync("info.inclusionOn", false, true);
-							// do something with included devices
-							discovery.close();
-							if (devices && devices.length > 0) {
-								configurePlugs(devices.map(d => d.ip));
-							}
-						})
-						.once("ready", () => {
-							// start inclusion
-							discovery.beginInclusion((obj.message as any).psk);
-						})
-						;
-					respond(responses.ACK);
-					return;
-
-				case "getIPAddresses": {
-					const addresses = getOwnIpAddresses();
-					respond(responses.RESULT(addresses));
-					return;
 				}
-				default:
-					respond(responses.ERROR_UNKNOWN_COMMAND);
-					return;
 			}
-		}
-	},
+		},
 
-	// is called when adapter shuts down - callback has to be called under any circumstances!
-	unload: (callback) => {
-		try {
-			server.close();
-			manager.close();
+		// is called when adapter shuts down - callback has to be called under any circumstances!
+		unload: (callback) => {
+			try {
+				server.close();
+				manager.close();
 
-			callback();
-		} catch (e) {
-			callback();
-		}
-	},
+				callback();
+			} catch (e) {
+				callback();
+			}
+		},
 
-});
+	});
+}
 
 function configurePlugs(ipAddresses?: string[]) {
-	manager = (new gHoma.Manager(options))
+	manager = (new gHoma.Manager(gHomaOptions))
 		.once("ready", async () => {
 			let promises;
 			if (ipAddresses && ipAddresses.length) {
@@ -566,3 +577,11 @@ process.on("uncaughtException", (err: Error) => {
 	if (err.stack != null) adapter.log.error("> stack: " + err.stack);
 	process.exit(1);
 });
+
+if (module.parent) {
+	// Export startAdapter in compact mode
+	module.exports = startAdapter;
+} else {
+	// otherwise start the instance directly
+	startAdapter();
+}

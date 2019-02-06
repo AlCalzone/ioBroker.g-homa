@@ -11,13 +11,12 @@
         "sourceMap": false,
         "inlineSourceMap": false,
         // "sourceRoot": "src/",
-        "target": "es5",
-        "lib": [ "es6" ]
+        "target": "es6"
     },
     "include": [
         "src/**/*.ts"
     ],
     "exclude": [
         "src/**/*.test.ts"
-    ]    
+    ]
 }
