@@ -52,15 +52,16 @@
                 "nl": "Eerste release"
             }
         },
-        "title": "Adapter for G-Homa WiFi plugs",
+        "title": "G-Homa WiFi plugs",
         "desc": {
-            "en": "Adapter to control G-Homa WiFi plugs",
-            "de": "Adapter, um G-Homa WLAN-Steckdosen zu kontrollieren"
+            "en": "Control G-Homa WiFi plugs",
+            "de": "Steuerung von G-Homa WLAN-Steckdosen"
         },
         "authors": [
             "AlCalzone <d.griesel@gmx.net>"
         ],
         "platform": "Javascript/Node.js",
+        "main": "build/main.js",
         "mode": "daemon",
         "icon": "g-homa.png",
         "enabled": true,
@@ -69,7 +70,8 @@
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
         "type": "iot-systems",
-        "messagebox": true
+        "messagebox": true,
+        "compact": true
     },
     "native": {
         "wifiKey": "",

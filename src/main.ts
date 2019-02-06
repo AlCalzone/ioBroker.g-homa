@@ -1,9 +1,20 @@
-﻿import * as gHoma from "g-homa";
+﻿import * as utils from "@iobroker/adapter-core";
+import * as gHoma from "g-homa";
 import { Plug } from "g-homa/build/server";
-import { ExtendedAdapter, Global as _ } from "./lib/global";
+import { Global as _ } from "./lib/global";
 import { getOwnIpAddresses } from "./lib/network";
 import { entries } from "./lib/object-polyfill";
-import utils from "./lib/utils";
+
+// Augment the adapter.config object with the actual types
+declare global {
+	namespace ioBroker {
+		interface AdapterConfig {
+			"wifiKey": string;
+			"serverPort": number;
+			"networkInterfaceIndex": number;
+		}
+	}
+}
 
 let server: gHoma.Server;
 let serverAddress: gHoma.ServerAddress;
@@ -17,13 +28,12 @@ let ownIP: string;
 
 const plugs: { [id: string]: gHoma.Plug } = {};
 
-let adapter: ExtendedAdapter = utils.adapter({
+const adapter: ioBroker.Adapter = utils.adapter({
 	name: "g-homa",
 
 	ready: async () => {
 
 		// Adapter-Instanz global machen
-		adapter = _.extend(adapter);
 		_.adapter = adapter;
 
 		// redirect console output
@@ -31,7 +41,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 		console.error = (msg) => adapter.log.error("STDERR > " + msg);
 
 		// Objekte zurücksetzen
-		await adapter.$setState("info.inclusionOn", false, true);
+		await adapter.setStateAsync("info.inclusionOn", false, true);
 
 		// richtige IP-Adresse auswählen
 		options = {
@@ -94,9 +104,9 @@ let adapter: ExtendedAdapter = utils.adapter({
 
 				const prefix = id.toUpperCase();
 				const iobID = `${prefix}.info.alive`;
-				const state = await adapter.$getState(iobID);
+				const state = await adapter.getStateAsync(iobID);
 				if (state && state.val != null) {
-					await adapter.$setState(iobID, false, true);
+					await adapter.setStateAsync(iobID, false, true);
 				}
 			})
 			.on("plug alive", async (id: string) => {
@@ -105,9 +115,9 @@ let adapter: ExtendedAdapter = utils.adapter({
 
 				const prefix = id.toUpperCase();
 				const iobID = `${prefix}.info.alive`;
-				const state = await adapter.$getState(iobID);
+				const state = await adapter.getStateAsync(iobID);
 				if (state && state.val != null) {
-					await adapter.$setState(iobID, true, true);
+					await adapter.setStateAsync(iobID, true, true);
 				}
 			})
 			;
@@ -132,7 +142,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 				const matches = /([0-9A-Fa-f]{6})\.state$/.exec(id);
 				if (matches && matches.length) {
 					const switchId = matches[1];
-					const obj = await adapter.$getObject(switchId.toUpperCase());
+					const obj = await adapter.getObjectAsync(switchId.toUpperCase());
 					if (obj && obj.native.id) {
 						server.switchPlug(obj.native.id, state.val);
 					}
@@ -185,11 +195,11 @@ let adapter: ExtendedAdapter = utils.adapter({
 						return;
 					}
 
-					await adapter.$setState("info.inclusionOn", true, true);
+					await adapter.setStateAsync("info.inclusionOn", true, true);
 					discovery = new gHoma.Discovery(options);
 					discovery
 						.once("inclusion finished", async (devices) => {
-							await adapter.$setState("info.inclusionOn", false, true);
+							await adapter.setStateAsync("info.inclusionOn", false, true);
 							// do something with included devices
 							discovery.close();
 							if (devices && devices.length > 0) {
@@ -228,7 +238,7 @@ let adapter: ExtendedAdapter = utils.adapter({
 		}
 	},
 
-}) as ExtendedAdapter;
+});
 
 function configurePlugs(ipAddresses?: string[]) {
 	manager = (new gHoma.Manager(options))
@@ -274,23 +284,23 @@ async function readPlugs(): Promise<void> {
 			};
 			plugs[plugId] = plug;
 			// Eigenschaften einlesen
-			let state = await adapter.$getState(`${id}.info.lastSeen`);
+			let state = await adapter.getStateAsync(`${id}.info.lastSeen`);
 			if (state && state.val != null) plug.lastSeen = state.val;
 
-			state = await adapter.$getState(`${id}.info.lastSwitchSource`);
+			state = await adapter.getStateAsync(`${id}.info.lastSwitchSource`);
 			if (state && state.val != null) plug.lastSwitchSource = state.val;
 
-			state = await adapter.$getState(`${id}.info.ip`);
+			state = await adapter.getStateAsync(`${id}.info.ip`);
 			if (state && state.val != null) plug.ip = state.val;
 
-			state = await adapter.$getState(`${id}.info.port`);
+			state = await adapter.getStateAsync(`${id}.info.port`);
 			if (state && state.val != null) plug.port = state.val;
 
 			// nicht den Schaltzustand, der wird vom Gerät selbst verraten
 
 			// Erreichbarkeit prüfen
 			plug.online = (Date.now() - plug.lastSeen <= 60000);
-			await adapter.$setStateChanged(`${id}.info.alive`, plug.online, true);
+			await adapter.setStateChangedAsync(`${id}.info.alive`, plug.online, true);
 			_.log(`found plug with id ${plugId} (${plug.online ? "online" : "offline"})`);
 
 		}
@@ -304,7 +314,7 @@ async function extendPlug(plug: gHoma.Plug) {
 	const prefix = plug.id.toUpperCase();
 	let promises: Promise<any>[] = [
 		// Gerät selbst
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}`, {
 				type: "device",
 				common: {
@@ -320,7 +330,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Info-Channel
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.info`, {
 				type: "channel",
 				common: {
@@ -330,7 +340,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Kommunikation
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.info.alive`, {
 				type: "state",
 				common: {
@@ -343,7 +353,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.info.lastSeen`, {
 				type: "state",
 				common: {
@@ -356,7 +366,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.info.ip`, {
 				type: "state",
 				common: {
@@ -369,7 +379,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.info.port`, {
 				type: "state",
 				common: {
@@ -383,7 +393,7 @@ async function extendPlug(plug: gHoma.Plug) {
 			},
 		),
 		// Schalten des Geräts
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.lastSwitchSource`, {
 				type: "state",
 				common: {
@@ -396,7 +406,7 @@ async function extendPlug(plug: gHoma.Plug) {
 				native: {},
 			},
 		),
-		adapter.$extendOrCreateObject(
+		extendOrCreateObject(
 			`${prefix}.state`, {
 				type: "state",
 				common: {
@@ -416,7 +426,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		adapter.log.debug(`current != null: ${plug.energyMeasurement.current != null}`);
 		if (plug.energyMeasurement.current != null) {
 			promises.push(
-				adapter.$extendOrCreateObject(
+				extendOrCreateObject(
 					`${prefix}.current`, {
 						type: "state",
 						common: {
@@ -436,7 +446,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		adapter.log.debug(`powerFactor != null: ${plug.energyMeasurement.powerFactor != null}`);
 		if (plug.energyMeasurement.powerFactor != null) {
 			promises.push(
-				adapter.$extendOrCreateObject(
+				extendOrCreateObject(
 					`${prefix}.powerFactor`, {
 						type: "state",
 						common: {
@@ -455,7 +465,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		adapter.log.debug(`power != null: ${plug.energyMeasurement.power != null}`);
 		if (plug.energyMeasurement.power != null) {
 			promises.push(
-				adapter.$extendOrCreateObject(
+				extendOrCreateObject(
 					`${prefix}.power`, {
 						type: "state",
 						common: {
@@ -475,7 +485,7 @@ async function extendPlug(plug: gHoma.Plug) {
 		adapter.log.debug(`voltage != null: ${plug.energyMeasurement.voltage != null}`);
 		if (plug.energyMeasurement.voltage != null) {
 			promises.push(
-				adapter.$extendOrCreateObject(
+				extendOrCreateObject(
 					`${prefix}.voltage`, {
 						type: "state",
 						common: {
@@ -498,22 +508,52 @@ async function extendPlug(plug: gHoma.Plug) {
 
 	// Jetzt die Werte speichern
 	promises = [
-		adapter.$setState(`${prefix}.info.alive`, plug.online, true),
-		adapter.$setState(`${prefix}.info.lastSeen`, plug.lastSeen, true),
-		adapter.$setState(`${prefix}.info.ip`, plug.ip, true),
-		adapter.$setState(`${prefix}.info.port`, plug.port, true),
-		adapter.$setState(`${prefix}.lastSwitchSource`, plug.lastSwitchSource, true),
-		adapter.$setState(`${prefix}.state`, plug.state, true),
+		adapter.setStateAsync(`${prefix}.info.alive`, plug.online, true),
+		adapter.setStateAsync(`${prefix}.info.lastSeen`, plug.lastSeen, true),
+		adapter.setStateAsync(`${prefix}.info.ip`, plug.ip, true),
+		adapter.setStateAsync(`${prefix}.info.port`, plug.port, true),
+		adapter.setStateAsync(`${prefix}.lastSwitchSource`, plug.lastSwitchSource, true),
+		adapter.setStateAsync(`${prefix}.state`, plug.state, true),
 	];
 	// alle vorhandenen Energiemessungs-Werte speichern
 	for (const measurement of ["voltage", "current", "power", "powerFactor"]) {
 		adapter.log.debug(`${measurement} in plug.energyMeasurement => ${measurement in plug.energyMeasurement}`);
 		if (measurement in plug.energyMeasurement) {
-			promises.push(adapter.$setState(`${prefix}.${measurement}`, plug.energyMeasurement[measurement], true));
+			promises.push(adapter.setStateAsync(`${prefix}.${measurement}`, plug.energyMeasurement[measurement], true));
 		}
 	}
 	await Promise.all(promises);
 
+}
+
+async function extendOrCreateObject(id: string, obj: ioBroker.SettableObject): Promise<{ id: string }> {
+	const existing = await adapter.getObjectAsync(id);
+	if (existing == null) {
+		return adapter.setObjectAsync(id, obj);
+	} else {
+		// merge all properties together
+		const oldObjAsString = JSON.stringify(existing);
+		for (const prop of Object.keys(obj)) {
+			if (typeof existing[prop] === "object") {
+				if (prop === "common") {
+					// we prefer to keep the existing properties
+					existing[prop] = Object.assign({}, obj[prop], existing[prop]);
+				} else {
+					// overwrite with new ones as the firmware or similiar might actually have changed
+					existing[prop] = Object.assign({}, existing[prop], obj[prop]);
+				}
+			} else {
+				existing[prop] = obj[prop];
+			}
+		}
+		const newObjAsString = JSON.stringify(existing);
+		if (oldObjAsString !== newObjAsString) {
+			return adapter.setObjectAsync(id, existing);
+		} else {
+			// nothing to update
+			return { id };
+		}
+	}
 }
 
 // Unbehandelte Fehler tracen

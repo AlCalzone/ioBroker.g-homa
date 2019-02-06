@@ -36,7 +36,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var object_polyfill_1 = require("./object-polyfill");
-var promises_1 = require("./promises");
 // ==================================
 var colors = {
     red: "#db3340",
@@ -81,105 +80,6 @@ var Global = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Global.extend = function (adapter) {
-        // Eine Handvoll Funktionen promisifizieren
-        var _this = this;
-        var ret = adapter;
-        if (!ret.__isExtended) {
-            ret = Object.assign(ret, {
-                $getObject: promises_1.promisify(adapter.getObject, adapter),
-                $setObject: promises_1.promisify(adapter.setObject, adapter),
-                $setObjectNotExists: promises_1.promisify(adapter.setObjectNotExists, adapter),
-                $getAdapterObjects: promises_1.promisify(adapter.getAdapterObjects, adapter),
-                $getForeignObject: promises_1.promisify(adapter.getForeignObject, adapter),
-                $setForeignObject: promises_1.promisify(adapter.setForeignObject, adapter),
-                $setForeignObjectNotExists: promises_1.promisify(adapter.setForeignObjectNotExists, adapter),
-                $getForeignObjects: promises_1.promisify(adapter.getForeignObjects, adapter),
-                $createDevice: promises_1.promisify(adapter.createDevice, adapter),
-                $deleteDevice: promises_1.promisify(adapter.deleteDevice, adapter),
-                $createChannel: promises_1.promisify(adapter.createChannel, adapter),
-                $deleteChannel: promises_1.promisify(adapter.deleteChannel, adapter),
-                $getState: promises_1.promisify(adapter.getState, adapter),
-                $getStates: promises_1.promisify(adapter.getStates, adapter),
-                $setState: promises_1.promisify(adapter.setState, adapter),
-                $setStateChanged: promises_1.promisify(adapter.setStateChanged, adapter),
-                $createState: promises_1.promisify(adapter.createState, adapter),
-                $deleteState: promises_1.promisify(adapter.deleteState, adapter),
-                $getForeignState: promises_1.promisify(adapter.getForeignState, adapter),
-                $setForeignState: promises_1.promisify(adapter.setForeignState, adapter),
-                $sendTo: promises_1.promisifyNoError(adapter.sendTo, adapter),
-            });
-        }
-        ret.$createOwnState = function (id, initialValue, ack, commonType) {
-            if (ack === void 0) { ack = true; }
-            if (commonType === void 0) { commonType = "mixed"; }
-            return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, ret.$setObject(id, {
-                                common: {
-                                    name: id,
-                                    role: "value",
-                                    type: commonType,
-                                    read: true,
-                                    write: true,
-                                },
-                                native: {},
-                                type: "state",
-                            })];
-                        case 1:
-                            _a.sent();
-                            return [4 /*yield*/, ret.$setState(id, initialValue, ack)];
-                        case 2:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            });
-        };
-        ret.$extendOrCreateObject = function (id, obj) { return __awaiter(_this, void 0, void 0, function () {
-            var existing, oldObjAsString, _i, _a, prop, newObjAsString;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, Global._adapter.$getObject(id)];
-                    case 1:
-                        existing = _b.sent();
-                        if (existing == null) {
-                            return [2 /*return*/, Global._adapter.$setObject(id, obj)];
-                        }
-                        else {
-                            oldObjAsString = JSON.stringify(existing);
-                            for (_i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
-                                prop = _a[_i];
-                                if (typeof existing[prop] === "object") {
-                                    if (prop === "common") {
-                                        // we prefer to keep the existing properties
-                                        existing[prop] = Object.assign({}, obj[prop], existing[prop]);
-                                    }
-                                    else {
-                                        // overwrite with new ones as the firmware or similiar might actually have changed
-                                        existing[prop] = Object.assign({}, existing[prop], obj[prop]);
-                                    }
-                                }
-                                else {
-                                    existing[prop] = obj[prop];
-                                }
-                            }
-                            newObjAsString = JSON.stringify(existing);
-                            if (oldObjAsString !== newObjAsString) {
-                                return [2 /*return*/, Global.adapter.$setObject(id, existing)];
-                            }
-                            else {
-                                // nothing to update
-                                return [2 /*return*/, { id: id }];
-                            }
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        return ret;
-    };
     /*
         Formatierungen:
         **fett**, ##kursiv##, __unterstrichen__, ~~durchgestrichen~~
@@ -226,7 +126,7 @@ var Global = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Global._adapter.$getForeignObject(id)];
+                    case 0: return [4 /*yield*/, Global._adapter.getForeignObjectAsync(id)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -241,7 +141,7 @@ var Global = /** @class */ (function () {
             var objects;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Global._adapter.$getForeignObjects(pattern, type)];
+                    case 0: return [4 /*yield*/, Global._adapter.getForeignObjectsAsync(pattern, type)];
                     case 1:
                         objects = _a.sent();
                         if (role) {

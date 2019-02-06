@@ -1,5 +1,4 @@
 ﻿import { entries, filter as objFilter } from "./object-polyfill";
-import { promisify, promisifyNoError } from "./promises";
 
 // ==================================
 
@@ -31,133 +30,20 @@ const replacements: {
 	}],
 };
 
-export interface ExtendedAdapter extends ioBroker.Adapter {
-	__isExtended: boolean;
-
-	$getObject: (id: string, options?: any) => Promise<ioBroker.Object>;
-	$getAdapterObjects: () => Promise<{ [id: string]: ioBroker.Object }>;
-	$setObject: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-	$setObjectNotExists: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-	$getForeignObject: (id: string, options?: any) => Promise<ioBroker.Object>;
-	$setForeignObject: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-	$setForeignObjectNotExists: (id: string, obj: ioBroker.Object, options?: any) => Promise<{ id: string }>;
-	$getForeignObjects: (pattern: string, type?: ioBroker.ObjectType, enums?: ioBroker.EnumList, options?: any) => Promise<{ [id: string]: ioBroker.Object }>;
-
-	$createDevice: (deviceName: string, common?: ioBroker.ObjectCommon, native?: any, options?: any) => Promise<{ id: string }>;
-	$deleteDevice: (deviceName: string, options?: any) => Promise<void>;
-	$createChannel: (parentDevice: string, channelName: string, roleOrCommon?: string | ioBroker.ChannelCommon, native?: any, options?: any) => Promise<{ id: string }>;
-	$deleteChannel: (parentDevice: string, channelName: string, options?: any) => Promise<void>;
-
-	$getState: (id: string, options?: any) => Promise<ioBroker.State>;
-	$getStates: (pattern: string, options?: any) => Promise<{ [id: string]: ioBroker.State }>;
-	$setState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
-	$setStateChanged: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
-	$createState: (parentDevice: string, parentChannel: string, stateName: string, roleOrCommon?: string | ioBroker.StateCommon, native?: any, options?: any) => Promise<{ id: string }>;
-	$deleteState: (parentDevice: string, parentChannel: string, stateName: string, options?: any) => Promise<void>;
-
-	$getForeignState: (id: string, options?: any) => Promise<ioBroker.State>;
-	$setForeignState: (id: string, state: string | number | boolean | ioBroker.State, ack?: boolean, options?: any) => Promise<string>;
-
-	$createOwnState: (id: string, initialValue: any, ack?: boolean, commonType?: ioBroker.CommonType) => Promise<void>;
-	$extendOrCreateObject: (id: string, obj: ioBroker.Object) => Promise<{ id: string }>;
-
-	$sendTo: (instanceName: string, command: string, message: string | object) => Promise<any>;
-}
-
 export class Global {
 
 	public static readonly loglevels = Object.freeze({ off: 0, on: 1, ridiculous: 2 });
 	public static readonly severity = Object.freeze({ normal: 0, warn: 1, error: 2 });
 
-	private static _adapter: ExtendedAdapter;
-	public static get adapter(): ExtendedAdapter { return Global._adapter; }
-	public static set adapter(adapter: ExtendedAdapter) {
+	private static _adapter: ioBroker.Adapter;
+	public static get adapter(): ioBroker.Adapter { return Global._adapter; }
+	public static set adapter(adapter: ioBroker.Adapter) {
 		Global._adapter = adapter;
 	}
 
 	private static _loglevel = Global.loglevels.on;
 	public static get loglevel() { return Global._loglevel; }
 	public static set loglevel(value) { Global._loglevel = value; }
-
-	public static extend(adapter: ioBroker.Adapter): ExtendedAdapter {
-		// Eine Handvoll Funktionen promisifizieren
-
-		let ret = adapter as ExtendedAdapter;
-		if (!ret.__isExtended) {
-			ret = Object.assign(ret, {
-				$getObject: promisify<ioBroker.Object>(adapter.getObject, adapter),
-				$setObject: promisify<{ id: string }>(adapter.setObject, adapter),
-				$setObjectNotExists: promisify<{ id: string }>(adapter.setObjectNotExists, adapter),
-				$getAdapterObjects: promisify<{ [id: string]: ioBroker.Object }>(adapter.getAdapterObjects, adapter),
-
-				$getForeignObject: promisify<ioBroker.Object>(adapter.getForeignObject, adapter),
-				$setForeignObject: promisify<{ id: string }>(adapter.setForeignObject, adapter),
-				$setForeignObjectNotExists: promisify<{ id: string }>(adapter.setForeignObjectNotExists, adapter),
-				$getForeignObjects: promisify<{ [id: string]: ioBroker.Object }>(adapter.getForeignObjects, adapter),
-
-				$createDevice: promisify<{ id: string }>(adapter.createDevice, adapter),
-				$deleteDevice: promisify<void>(adapter.deleteDevice, adapter),
-				$createChannel: promisify<{ id: string }>(adapter.createChannel, adapter),
-				$deleteChannel: promisify<void>(adapter.deleteChannel, adapter),
-
-				$getState: promisify<ioBroker.State>(adapter.getState, adapter),
-				$getStates: promisify<{ [id: string]: ioBroker.State }>(adapter.getStates, adapter),
-				$setState: promisify<string>(adapter.setState, adapter),
-				$setStateChanged: promisify<string>(adapter.setStateChanged, adapter),
-				$createState: promisify<{ id: string }>(adapter.createState, adapter),
-				$deleteState: promisify<void>(adapter.deleteState, adapter),
-
-				$getForeignState: promisify<ioBroker.State>(adapter.getForeignState, adapter),
-				$setForeignState: promisify<string>(adapter.setForeignState, adapter),
-
-				$sendTo: promisifyNoError<any>(adapter.sendTo, adapter),
-			});
-		}
-		ret.$createOwnState = async (id: string, initialValue: any, ack: boolean = true, commonType: ioBroker.CommonType = "mixed") => {
-			await ret.$setObject(id, {
-				common: {
-					name: id,
-					role: "value",
-					type: commonType,
-					read: true,
-					write: true,
-				},
-				native: {},
-				type: "state",
-			});
-			await ret.$setState(id, initialValue, ack);
-		};
-		ret.$extendOrCreateObject = async (id: string, obj: ioBroker.Object): Promise<{ id: string }> => {
-			const existing = await Global._adapter.$getObject(id);
-			if (existing == null) {
-				return Global._adapter.$setObject(id, obj);
-			} else {
-				// merge all properties together
-				const oldObjAsString = JSON.stringify(existing);
-				for (const prop of Object.keys(obj)) {
-					if (typeof existing[prop] === "object") {
-						if (prop === "common") {
-							// we prefer to keep the existing properties
-							existing[prop] = Object.assign({}, obj[prop], existing[prop]);
-						} else {
-							// overwrite with new ones as the firmware or similiar might actually have changed
-							existing[prop] = Object.assign({}, existing[prop], obj[prop]);
-						}
-					} else {
-						existing[prop] = obj[prop];
-					}
-				}
-				const newObjAsString = JSON.stringify(existing);
-				if (oldObjAsString !== newObjAsString) {
-					return Global.adapter.$setObject(id, existing);
-				} else {
-					// nothing to update
-					return { id };
-				}
-			}
-		};
-		return ret;
-	}
 
 	/*
 		Formatierungen:
@@ -201,7 +87,7 @@ export class Global {
 	 * @param id
 	 */
 	public static async $(id: string) {
-		return await Global._adapter.$getForeignObject(id);
+		return await Global._adapter.getForeignObjectAsync(id);
 	}
 
 	/**
@@ -209,7 +95,7 @@ export class Global {
 	 * @param id
 	 */
 	public static async $$(pattern: string, type: ioBroker.ObjectType, role?: string): Promise<{ [id: string]: ioBroker.Object }> {
-		const objects = await Global._adapter.$getForeignObjects(pattern, type);
+		const objects = await Global._adapter.getForeignObjectsAsync(pattern, type);
 		if (role) {
 			return objFilter(objects, (o) => o.common.role === role);
 		} else {

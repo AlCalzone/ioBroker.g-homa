@@ -1,3 +1,4 @@
+/// <reference types="iobroker" />
 declare const _default: {
     readonly controllerDir: string;
     getConfig(): string;
