@@ -1,6 +1,6 @@
 ![Logo](admin/g-homa.png)
 # ioBroker.g-homa
-=================
+![Number of Installations](http://iobroker.live/badges/g-homa-installed.svg) ![Number of Installations](http://iobroker.live/badges/g-homa-stable.svg) =================
 
 **Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/AlCalzone/ioBroker.g-homa.svg?branch=master)](https://travis-ci.org/AlCalzone/ioBroker.g-homa) 
 Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/AlCalzone/ioBroker.g-homa?branch=master&svg=true)](https://ci.appveyor.com/project/AlCalzone/ioBroker-g-homa/)
