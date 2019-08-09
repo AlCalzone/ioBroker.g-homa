@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "news": {
+            "0.5.0": {
+                "en": "Improve detection of G-Homa devices",
+                "de": "Verbesserte Erkennung von G-Homa-Geräten",
+                "ru": "Улучшить обнаружение устройств G-Homa",
+                "pt": "Melhore a detecção de dispositivos G-Homa",
+                "nl": "Verbetering van de detectie van G-Homa-apparaten",
+                "fr": "Améliorer la détection des appareils G-Homa",
+                "it": "Migliora il rilevamento dei dispositivi G-Homa",
+                "es": "Mejora la detección de dispositivos G-Homa",
+                "pl": "Popraw wykrywanie urządzeń G-Homa",
+                "zh-cn": "改进G-Homa设备的检测"
+            },
             "0.4.0": {
                 "en": "Avoid overwriting the name of existing objects.",
                 "de": "Überschreiben des Namens existierender Objekte wird vermieden."
