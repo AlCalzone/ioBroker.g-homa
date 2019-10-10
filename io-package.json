@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.5.0",
+        "version": "0.5.1",
         "news": {
+            "0.5.1": {
+                "en": "Defined missing `info.connection` object.",
+                "de": "Fehlendes `info.connection`-Objekt definiert.",
+                "ru": "Определен отсутствующий объект `info.connection`.",
+                "pt": "Definido o objeto `info.connection` ausente.",
+                "nl": "Defined ontbrekend `info.connection` object.",
+                "fr": "Objet `info.connection` manquant défini.",
+                "it": "Definito oggetto `info.connection` mancante.",
+                "es": "Definido falta el objeto `info.connection`.",
+                "pl": "Zdefiniowano brakujący obiekt `info.connection`.",
+                "zh-cn": "定义了缺少的“ info.connection”对象。"
+            },
             "0.5.0": {
                 "en": "Improve detection of G-Homa devices",
                 "de": "Verbesserte Erkennung von G-Homa-Geräten",
