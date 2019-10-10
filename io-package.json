@@ -104,6 +104,19 @@
             "native": {}
         },
         {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Whether the adapter is listening for connections",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
             "_id": "info.inclusionOn",
             "type": "state",
             "common": {
