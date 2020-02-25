@@ -4,7 +4,6 @@ os:
   - windows
 language: node_js
 node_js:
-  - '6'
   - '8'
   - '10'
   - '12'
@@ -13,7 +12,7 @@ before_script:
   - 'if [[ $NPMVERSION == 5 ]]; then npm install -g npm@5; fi'
   - npm -v
 script:
-  - 'npm run test:package'
+  # - 'npm run test:package'
   - 'npm run test:integration'
 env:
   - CXX=g++-6
