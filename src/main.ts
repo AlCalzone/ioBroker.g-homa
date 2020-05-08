@@ -33,7 +33,7 @@ let adapter: ioBroker.Adapter;
 /**
  * Starts the adapter instance
  */
-function startAdapter(options: Partial<ioBroker.AdapterOptions> = {}) {
+function startAdapter(options: Partial<utils.AdapterOptions> = {}) {
 	// Create the adapter and define its methods
 	return adapter = utils.adapter({
 		// Default options
@@ -86,7 +86,9 @@ function startAdapter(options: Partial<ioBroker.AdapterOptions> = {}) {
 				})
 				.on("plug added", (id: string) => {
 					// vorerst nichts zu tun
-					adapter.log.info(`Added plug with ID ${id}`);
+					if (!(id in plugs)) {
+						adapter.log.info(`Added plug with ID ${id}`);
+					}
 				})
 				.on("plug updated", (plug: gHoma.Plug) => {
 					// Objekt merken
@@ -154,11 +156,11 @@ function startAdapter(options: Partial<ioBroker.AdapterOptions> = {}) {
 						const switchId = matches[1];
 						const obj = await adapter.getObjectAsync(switchId.toUpperCase());
 						if (obj && obj.native.id) {
-							server.switchPlug(obj.native.id, state.val);
+							server.switchPlug(obj.native.id, state.val as any as boolean);
 						}
 					}
 				} else if (id.match(/info\.inclusionOn/)) {
-					inclusionOn = state.val;
+					inclusionOn = state.val as any as boolean;
 				}
 			}
 		},
@@ -296,10 +298,10 @@ async function readPlugs(): Promise<void> {
 			plugs[plugId] = plug;
 			// Eigenschaften einlesen
 			let state = await adapter.getStateAsync(`${id}.info.lastSeen`);
-			if (state && state.val != null) plug.lastSeen = state.val;
+			if (state && state.val != null) plug.lastSeen = state.val as any as number;
 
 			state = await adapter.getStateAsync(`${id}.info.lastSwitchSource`);
-			if (state && state.val != null) plug.lastSwitchSource = state.val;
+			if (state && state.val != null) plug.lastSwitchSource = state.val as any;
 
 			state = await adapter.getStateAsync(`${id}.info.ip`);
 			if (state && state.val != null) plug.ip = state.val;

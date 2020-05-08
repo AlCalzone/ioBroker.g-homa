@@ -11,9 +11,11 @@ export declare class Global {
         error: number;
     }>;
     private static _adapter;
-    static adapter: ioBroker.Adapter;
+    static get adapter(): ioBroker.Adapter;
+    static set adapter(adapter: ioBroker.Adapter);
     private static _loglevel;
-    static loglevel: number;
+    static get loglevel(): number;
+    static set loglevel(value: number);
     static log(message: string, { level, severity }?: {
         level?: number;
         severity?: number;
