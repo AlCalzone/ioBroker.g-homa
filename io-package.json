@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.5.1",
+        "version": "0.5.2",
         "news": {
+            "0.5.2": {
+                "en": "* (AlCalzone) Don't log `plug added` for known plugs",
+                "de": "* (AlCalzone) Protokollieren Sie nicht \"Stecker hinzugefügt\" für bekannte Stecker",
+                "ru": "* (AlCalzone) Не регистрировать `plug добавил` для известных плагинов",
+                "pt": "* (AlCalzone) Não registre `plug added` para plugs conhecidos",
+                "nl": "* (AlCalzone) Log geen 'plug added' bij voor bekende pluggen",
+                "fr": "* (AlCalzone) Ne connectez pas la fiche ajoutée pour les fiches connues",
+                "it": "* (AlCalzone) Non registra `plug plugin` per le spine conosciute",
+                "es": "* (AlCalzone) No registre el 'enchufe agregado' para enchufes conocidos",
+                "pl": "* (AlCalzone) Nie loguj „wtyczki dodanej” dla znanych wtyczek",
+                "zh-cn": "*（AlCalzone）不要为已知插件记录“已添加插件”"
+            },
             "0.5.1": {
                 "en": "Defined missing `info.connection` object.",
                 "de": "Fehlendes `info.connection`-Objekt definiert.",
@@ -91,7 +103,9 @@
         "icon": "g-homa.png",
         "enabled": true,
         "extIcon": "https://raw.githubusercontent.com/AlCalzone/ioBroker.g-homa/master/admin/g-homa.png",
-        "keywords": [ "g-homa" ],
+        "keywords": [
+            "g-homa"
+        ],
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
         "type": "iot-systems",
@@ -103,9 +117,7 @@
         "serverPort": 50000,
         "networkInterfaceIndex": 0
     },
-    "objects": [
-
-    ],
+    "objects": [],
     "instanceObjects": [
         {
             "_id": "info",

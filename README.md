@@ -16,7 +16,7 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 	### __WORK IN PROGRESS__
 -->
 
-### __WORK IN PROGRESS__
+### 0.5.2 (2020-05-08)
 * (AlCalzone) Don't log `plug added` for known plugs
 
 ### 0.5.1 (2019-10-10)

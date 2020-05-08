@@ -1,6 +1,6 @@
 {
   "name": "iobroker.g-homa",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "ioBroker adapter to control G-Homa WiFi plugs",
   "author": {
     "name": "AlCalzone",
@@ -51,7 +51,6 @@
     "test:package": "node_modules/.bin/mocha test/package --exit",
     "test:integration": "node_modules/.bin/mocha test/integration --exit",
     "test": "npm run test:ts",
-    "prepublishOnly": "npm run test:package",
     "coverage": "node node_modules/nyc/bin/nyc npm run test",
     "release": "release-script"
   },
