@@ -16,7 +16,7 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 	### __WORK IN PROGRESS__
 -->
 
-### __WORK IN PROGRESS__
+### 0.5.3 (2020-05-31)
 * (AlCalzone) Added more translations
 
 ### 0.5.2 (2020-05-08)

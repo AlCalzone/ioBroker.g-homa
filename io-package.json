@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "g-homa",
-        "version": "0.5.2",
+        "version": "0.5.3",
         "news": {
+            "0.5.3": {
+                "en": "* (AlCalzone) Added more translations",
+                "de": "* (AlCalzone) Weitere Übersetzungen hinzugefügt",
+                "ru": "* (AlCalzone) Добавлено больше переводов",
+                "pt": "* (AlCalzone) Adicionado mais traduções",
+                "nl": "* (AlCalzone) Meer vertalingen toegevoegd",
+                "fr": "* (AlCalzone) Ajout de traductions supplémentaires",
+                "it": "* (AlCalzone) Aggiunte altre traduzioni",
+                "es": "* (AlCalzone) Se agregaron más traducciones",
+                "pl": "* (AlCalzone) Dodano więcej tłumaczeń",
+                "zh-cn": "*（AlCalzone）添加了更多翻译"
+            },
             "0.5.2": {
                 "en": "* (AlCalzone) Don't log `plug added` for known plugs",
                 "de": "* (AlCalzone) Protokollieren Sie nicht \"Stecker hinzugefügt\" für bekannte Stecker",

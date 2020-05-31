@@ -1,6 +1,6 @@
 {
   "name": "iobroker.g-homa",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "ioBroker adapter to control G-Homa WiFi plugs",
   "author": {
     "name": "AlCalzone",
