@@ -41,43 +41,123 @@
             },
             "0.4.0": {
                 "en": "Avoid overwriting the name of existing objects.",
-                "de": "Überschreiben des Namens existierender Objekte wird vermieden."
+                "de": "Überschreiben des Namens existierender Objekte wird vermieden.",
+                "ru": "Избегайте перезаписи имен существующих объектов.",
+                "pt": "Evite sobrescrever o nome dos objetos existentes.",
+                "nl": "Vermijd het overschrijven van de naam van bestaande objecten.",
+                "fr": "Évitez d'écraser le nom des objets existants.",
+                "it": "Evita di sovrascrivere il nome di oggetti esistenti.",
+                "es": "Evite sobrescribir el nombre de los objetos existentes.",
+                "pl": "Unikaj nadpisywania nazw istniejących obiektów.",
+                "zh-cn": "避免覆盖现有对象的名称。"
             },
             "0.3.2": {
                 "en": "Less strict check for the creation of energy measurement states.",
-                "de": "Überprüfung für die Erstellung von Energiemessungs-States ist weniger strikt."
+                "de": "Überprüfung für die Erstellung von Energiemessungs-States ist weniger strikt.",
+                "ru": "Менее строгая проверка для создания состояний измерения энергии.",
+                "pt": "Verificação menos rigorosa para a criação de estados de medição de energia.",
+                "nl": "Minder strikte controle voor het creëren van energiemeetstatussen.",
+                "fr": "Contrôle moins strict de la création d'états de mesure d'énergie.",
+                "it": "Controllo meno rigoroso per la creazione di stati di misurazione dell'energia.",
+                "es": "Control menos estricto para la creación de estados de medición de energía.",
+                "pl": "Mniej rygorystyczna kontrola tworzenia stanów pomiaru energii.",
+                "zh-cn": "不太严格地检查是否创建了能量测量状态。"
             },
             "0.3.1": {
                 "en": "Remove log spam in combination with a history adapter",
-                "de": "Log-Spam in Kombination mit History-Adapter behoben"
+                "de": "Log-Spam in Kombination mit History-Adapter behoben",
+                "ru": "Удаление спама в журнале в сочетании с адаптером истории",
+                "pt": "Remova o spam de log em combinação com um adaptador de histórico",
+                "nl": "Logboekspam verwijderen in combinatie met een geschiedenisadapter",
+                "fr": "Supprimer le spam de journal en combinaison avec un adaptateur d'historique",
+                "it": "Rimuovere lo spam del registro in combinazione con un adattatore cronologico",
+                "es": "Eliminar el registro de spam en combinación con un adaptador de historial",
+                "pl": "Usuń spam z dziennika w połączeniu z adapterem historii",
+                "zh-cn": "结合历史记录适配器删除日志垃圾邮件"
             },
             "0.3.0": {
                 "en": "Support for multiple network interfaces",
-                "de": "Unterstützung für mehrere Netzwerkschnittstellen"
+                "de": "Unterstützung für mehrere Netzwerkschnittstellen",
+                "ru": "Поддержка нескольких сетевых интерфейсов",
+                "pt": "Suporte para múltiplas interfaces de rede",
+                "nl": "Ondersteuning voor meerdere netwerkinterfaces",
+                "fr": "Prise en charge de plusieurs interfaces réseau",
+                "it": "Supporto per più interfacce di rete",
+                "es": "Soporte para múltiples interfaces de red.",
+                "pl": "Obsługa wielu interfejsów sieciowych",
+                "zh-cn": "支持多个网络接口"
             },
             "0.2.0": {
                 "en": "Experimental support for plugs with energy measurement",
-                "de": "Experimentelle Unterstützung für Steckdosen mit Energiemessung"
+                "de": "Experimentelle Unterstützung für Steckdosen mit Energiemessung",
+                "ru": "Экспериментальная поддержка штекеров с измерением энергии",
+                "pt": "Suporte experimental para plugues com medição de energia",
+                "nl": "Experimentele ondersteuning voor stekkers met energiemeting",
+                "fr": "Support expérimental pour prises avec mesure d'énergie",
+                "it": "Supporto sperimentale per spine con misurazione dell'energia",
+                "es": "Soporte experimental para enchufes con medición de energía.",
+                "pl": "Eksperymentalne wsparcie dla wtyczek z pomiarem energii",
+                "zh-cn": "能量测量插头的实验支持"
             },
             "0.1.2": {
                 "en": "Bugfixes",
-                "de": "Bugfixes"
+                "de": "Bugfixes",
+                "ru": "Исправление ошибок",
+                "pt": "Correções de bugs",
+                "nl": "Bugfixes",
+                "fr": "Corrections de bugs",
+                "it": "Correzioni di bug",
+                "es": "Corrección de errores",
+                "pl": "Poprawki błędów",
+                "zh-cn": "Bug修复"
             },
             "0.1.0": {
                 "en": "Added device management functions",
-                "de": "Funktionen zur Geräteverwaltung hinzugefügt"
+                "de": "Funktionen zur Geräteverwaltung hinzugefügt",
+                "ru": "Добавлены функции управления устройством",
+                "pt": "Funções de gerenciamento de dispositivos adicionadas",
+                "nl": "Apparaatbeheerfuncties toegevoegd",
+                "fr": "Ajout de fonctions de gestion des appareils",
+                "it": "Aggiunte funzioni di gestione dei dispositivi",
+                "es": "Funciones de administración de dispositivos agregadas",
+                "pl": "Dodano funkcje zarządzania urządzeniami",
+                "zh-cn": "增加了设备管理功能"
             },
             "0.0.4": {
                 "en": "Fix reconnection of plugs after power loss",
-                "de": "Verbindungswiederherstellung von Steckdosen gefixt"
+                "de": "Verbindungswiederherstellung von Steckdosen gefixt",
+                "ru": "Исправить переподключение вилок после потери питания",
+                "pt": "Corrigir a reconexão dos plugues após perda de energia",
+                "nl": "Herstel de aansluiting van stekkers na stroomuitval",
+                "fr": "Correction de la reconnexion des fiches après une coupure de courant",
+                "it": "Correggere la riconnessione delle spine dopo l'interruzione dell'alimentazione",
+                "es": "Repara la reconexión de enchufes después de una pérdida de energía",
+                "pl": "Napraw ponowne podłączenie wtyczek po utracie zasilania",
+                "zh-cn": "断电后修复插头的重新连接"
             },
             "0.0.3": {
                 "en": "Update adapter testing",
-                "de": "Adapter-Tests aktualisiert"
+                "de": "Adapter-Tests aktualisiert",
+                "ru": "Обновление тестирования адаптера",
+                "pt": "Atualizar teste do adaptador",
+                "nl": "Adapter testen testen",
+                "fr": "Mettre à jour le test de l'adaptateur",
+                "it": "Test dell'adattatore di aggiornamento",
+                "es": "Actualizar la prueba del adaptador",
+                "pl": "Zaktualizuj testowanie adaptera",
+                "zh-cn": "更新适配器测试"
             },
             "0.0.2": {
                 "en": "Improved support for older NodeJS versions",
-                "de": "Verbesserte Unterstützung für alte NodeJS-Versionen"
+                "de": "Verbesserte Unterstützung für alte NodeJS-Versionen",
+                "ru": "Улучшена поддержка старых версий NodeJS",
+                "pt": "Suporte aprimorado para versões mais antigas do NodeJS",
+                "nl": "Verbeterde ondersteuning voor oudere NodeJS-versies",
+                "fr": "Prise en charge améliorée des anciennes versions de NodeJS",
+                "it": "Supporto migliorato per le versioni precedenti di NodeJS",
+                "es": "Soporte mejorado para versiones anteriores de NodeJS",
+                "pl": "Poprawiona obsługa starszych wersji NodeJS",
+                "zh-cn": "改进了对旧版NodeJS的支持"
             },
             "0.0.1": {
                 "en": "initial adapter",
@@ -85,13 +165,25 @@
                 "ru": "Первоначальный адаптер",
                 "pt": "Versão inicial",
                 "fr": "Version initiale",
-                "nl": "Eerste release"
+                "nl": "Eerste release",
+                "it": "adattatore iniziale",
+                "es": "adaptador inicial",
+                "pl": "początkowy adapter",
+                "zh-cn": "初始适配器"
             }
         },
         "title": "G-Homa WiFi plugs",
         "desc": {
             "en": "Control G-Homa WiFi plugs",
-            "de": "Steuerung von G-Homa WLAN-Steckdosen"
+            "de": "Steuerung von G-Homa WLAN-Steckdosen",
+            "ru": "Контрольные вилки G-Homa WiFi",
+            "pt": "Controle os plugues WiFi G-Homa",
+            "nl": "Bedien G-Homa WiFi-stekkers",
+            "fr": "Contrôler les prises WiFi G-Homa",
+            "it": "Controlla le prese WiFi G-Homa",
+            "es": "Controla los enchufes WiFi G-Homa",
+            "pl": "Kontroluj wtyczki G-Homa WiFi",
+            "zh-cn": "控制G-Homa WiFi插头"
         },
         "authors": [
             "AlCalzone <d.griesel@gmx.net>"
