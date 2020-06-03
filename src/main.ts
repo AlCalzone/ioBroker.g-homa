@@ -1,6 +1,5 @@
 ﻿import * as utils from "@iobroker/adapter-core";
 import * as gHoma from "g-homa";
-import { Plug } from "g-homa/build/server";
 import { Global as _ } from "./lib/global";
 import { getOwnIpAddresses } from "./lib/network";
 import { entries } from "./lib/object-polyfill";
@@ -184,7 +183,7 @@ function startAdapter(options: Partial<utils.AdapterOptions> = {}) {
 			};
 			// make required parameters easier
 			function requireParams(...params: string[]) {
-				if (!(params && params.length)) return true;
+				if (!params.length) return true;
 				for (const param of params) {
 					if (!(obj.message && obj.message.hasOwnProperty(param))) {
 						respond(responses.MISSING_PARAMETER(param));

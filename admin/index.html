@@ -210,7 +210,7 @@
 			var container = $("#devices");
 			var row = $("<tr>")
 				.attr("data-id", id)
-				.appendTo($("#devices"))
+				.appendTo(container)
 			;
 			$('<td class="name">' + device.common.name + '</td>').appendTo(row);
 			$('<td class="address">' + address + '</td>').appendTo(row);

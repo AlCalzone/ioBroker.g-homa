@@ -161,7 +161,7 @@ function startAdapter(options = {}) {
             };
             // make required parameters easier
             function requireParams(...params) {
-                if (!(params && params.length))
+                if (!params.length)
                     return true;
                 for (const param of params) {
                     if (!(obj.message && obj.message.hasOwnProperty(param))) {
