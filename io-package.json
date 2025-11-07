@@ -212,6 +212,7 @@
         ],
         "readme": "https://github.com/AlCalzone/ioBroker.g-homa/blob/master/README.md",
         "loglevel": "info",
+        "tier": 2,
         "type": "iot-systems",
         "messagebox": true,
         "compact": true
