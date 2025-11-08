@@ -201,7 +201,10 @@
             "AlCalzone <d.griesel@gmx.net>"
         ],
         "platform": "Javascript/Node.js",
-        "license": "MIT",
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
         "main": "build/main.js",
         "mode": "daemon",
         "icon": "g-homa.png",
