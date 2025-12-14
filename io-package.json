@@ -202,7 +202,6 @@
         ],
         "platform": "Javascript/Node.js",
         "license": "MIT",
-        "main": "build/main.js",
         "mode": "daemon",
         "icon": "g-homa.png",
         "enabled": true,
