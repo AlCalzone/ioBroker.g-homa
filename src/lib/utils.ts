@@ -1,7 +1,7 @@
 // tslint:disable:unified-signatures
 // tslint:disable:no-var-requires
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 // Get js-controller directory to load libs
 function getControllerDir(isInstall: boolean): string {
