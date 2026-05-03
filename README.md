@@ -65,6 +65,8 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 ### 0.0.1
 * (AlCalzone) initial release
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 The MIT License (MIT)
 
