@@ -16,6 +16,10 @@ The inclusion of plugs has to be performed with the app for now, but will soon b
 	### __WORK IN PROGRESS__
 -->
 
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
 ### 0.5.3 (2020-05-31)
 * (AlCalzone) Added more translations
 
